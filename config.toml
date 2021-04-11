@@ -6,12 +6,12 @@ defaultContentLanguageInSubdir = true
 
 [languages]
   [languages.en]
-    contentDir = "content/en"
+    contentDir = "content/posts/en"
     title = "lumostone"
     languageName = "English"
     weight = 1
   [languages.zh-tw]
-    contentDir = "content/zh-tw"
+    contentDir = "content/posts/zh-tw"
     title = "lumostone"
     languageName = "繁體中文"
     weight = 2
