@@ -4,7 +4,8 @@ date: 2021-04-07T21:21:09Z
 draft: true
 ---
 
-- This is a step-by-step guide to run beacon nodes and validators with Kuberenetes for Ethereum 2.0 staking. In this guide, we are using:
+This is a step-by-step guide to run beacon nodes and validators with Kuberenetes for Ethereum 2.0 staking. In this guide, we are using:
+
 - [Prysm](https://github.com/prysmaticlabs/prysm) as the Ethereum 2.0 Client.
 - [MicroK8s](https://microk8s.io/) as the Kubernertes destribution ([installation guide](https://microk8s.io/docs)).
 - [Helm](https://helm.sh/) to manage packages and releases.
