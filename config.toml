@@ -18,4 +18,15 @@ defaultContentLanguageInSubdir = true
 
 [module]
   [[module.imports]]
-    path = "github.com/spf13/hyde"
+    path = "github.com/lumostone/hugo-theme-lumostone"
+
+[author]
+  name = "lumostone"
+
+[params]
+  enableSummary = true
+  smartToc = true
+
+[markup]
+  [markup.highlight]
+    style = "monokailight"
