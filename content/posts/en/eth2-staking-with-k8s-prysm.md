@@ -1,10 +1,10 @@
 ---
-title: "Ethereum 2.0 Staking with Kubernetes and Prysm"
+title: "Guide to Ethereum 2.0 Staking with Kubernetes and Prysm"
 date: 2021-04-12T23:53:09Z
 draft: true
 ---
 
-## Why Stake with Kubernetes
+## Why Stake with Kubernetes? 
 As stakers, we all want to minimize downtime and the risk of being slashed. 
 
 Minimizing downtime is a difficult objective to achieve since a validator might be down for various reasons: system failures, incomplete restart policies, connectivity issues, hardware maintenance or software bugs. Staking with two or more machines for redundancy naturally comes to mind.
@@ -89,7 +89,7 @@ NFS:
 ## Network Requirements
 
 - Every machine needs to have outbound connectivity to the Internet at least during installation. 
-- Masters and workers can reach to each other. We will configure the firewall in the following section to only allow the inbound traffic to thr ports required by MicroK8s. For more details, you can refer to [MicroK8s’ documentation: Services and ports](https://microk8s.io/docs/ports).
+- Masters and workers can reach to each other. We will configure the firewall in the following section to only allow the inbound traffic to the ports required by MicroK8s. For more details, you can refer to [MicroK8s’ documentation: Services and ports](https://microk8s.io/docs/ports).
 - Masters and workers can reach the NFS server.
 - Masters and workers can reach the endpoint of the Ethereum 1.0 node.
 
