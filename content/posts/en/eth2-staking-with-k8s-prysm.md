@@ -7,7 +7,7 @@ draft: true
 ## Why Stake with Kubernetes
 As stakers, we all want to minimize downtime and the risk of being slashed. 
 
-Minimizing downtime is a difficult objective to achieve since a validator might be down for various reasons: system failures, incomplete restart policies, connectivity issues, hardware maintenance or software bugs. Staking with 2 or more machines for redundancy naturally comes to mind.
+Minimizing downtime is a difficult objective to achieve since a validator might be down for various reasons: system failures, incomplete restart policies, connectivity issues, hardware maintenance or software bugs. Staking with two or more machines for redundancy naturally comes to mind.
 
 People might say, “redundancy leads to slashing!” which is a legitimate concern because we could accidentally run multiple validators with the same validator keys at the same time. Migrating the validators from a broken machine to the other with inappropriate procedure might in turn disrupt the slashing protection database . A staker with benign intention has the risk of being slashed due to the error-prone manual operations and the complexities increase when you have a high-availability setup. Needless to say, the experience could deteriorate if a staker runs multiple validators.
 
@@ -34,18 +34,18 @@ In this step-by-step guide, we run one beacon node with multiple validators in a
 
 This guide will help you to:
 
-- Create a Kubernetes cluster with MicroK8s. If you already have your prefered Kubernetes distribution running you can jump to the section "[Install and Configure NFS](#install-and-configure-nfs)". If you are using managed Kubernetes services provided by cloud providers (*e.g.* AKS, EKS, and GKE), you may consider using cloud storage directly rather than NFS as the persistent storage. We will cover this topic in the future.
+- Create a Kubernetes cluster with MicroK8s. If you already have your prefered Kubernetes distribution running you can jump to the section “[Install and Configure NFS](#install-and-configure-nfs)”. If you are using managed Kubernetes services provided by cloud providers (*e.g.* AKS, EKS, and GKE), you may consider using cloud storage directly rather than NFS as the persistent storage. We will cover this topic in the future.
 - Install and configure NFS.
 - Prepare the Helm chart for multiple validators.
-- Install Prysm's beacon and validator client with the Helm chart.
+- Install Prysm’s beacon and validator client with the Helm chart.
 - Check client status.
-- Upgrade and roll back the Prysm's beacon and validator client with the Helm chart.
+- Upgrade and roll back the Prysm’s beacon and validator client with the Helm chart.
 
 ## Non-Goal
 
-This guide does not: 	
+This guide does not:
 
-- Cover the performance tuning and sizing. 
+- Cover the performance tuning and sizing.
 - Cover the steps to fund the validators and to generate the validator keys.
 - Include Kubernetes cluster high availability (HA) configuration and security hardening.
 
@@ -59,7 +59,7 @@ We all stake at our own risk. Please always do the experiments and dry-run on th
 
 We need at least 3 machines (virtual machines or bare-metal machines) in total for this setup. One machine will be the NFS server to store the staking data, the second machine will be the “master” node to run the Kubernetes core components, and finally, the third machine will be the “worker” node to run the workloads, which are the beacon and validators, in the Kubernetes cluster. For high availability (HA), you can consider adding more nodes by following [MicroK8s’ High Availability documentation](https://microk8s.io/docs/high-availability) and regularly backing up the beacon data for fast startup. We will discuss HA configurations in subsequent posts. 
 
-Here are the recommended system requirements based on our testing on the [**Prymon testnet**](https://pyrmont.beaconcha.in/) and MicroK8s’ [official documentation](https://microk8s.io/docs). Please note that meeting the minimal requirements does not guarantee optimal performance or cost efficiency. 
+Here are the recommended system requirements based on our testing on the [**Pyrmont testnet**](https://pyrmont.beaconcha.in/) and MicroK8s’ [official documentation](https://microk8s.io/docs). Please note that meeting the minimal requirements does not guarantee optimal performance or cost efficiency. 
 
 Master:
 
@@ -82,15 +82,16 @@ NFS:
 ## Prerequisites
 
 - You have funded your validators and have generated validator keys. If you need guidance, we recommend [Somer East’s guide](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-lighthouse-a634d3b87393).
-- Ethereum 1.0 “Goerli" node: [Somer East’s guide](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-prysm-a10b5129c7e3) also covers steps for building the Ethereum 1.0 node. You can also choose a third-party provider such as [Infura](https://infura.io/) or [Alchemy](https://alchemyapi.io/).
+- Ethereum 1.0 “Goerli” node: [Somer East’s guide](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-prysm-a10b5129c7e3) also covers steps for building the Ethereum 1.0 node. You can also choose a third-party provider such as [Infura](https://infura.io/) or [Alchemy](https://alchemyapi.io/).
 - Planning your private network, firewall, and port forwarding. We have put our network configuration in the Walkthrough for your reference.
 - You have installed Ubuntu Server 20.04.2 LTS (x64) on all the servers and have assigned static IPs.
 
 ## Network Requirements
 
-- Master and the workers can reach each other.
-- Master and the workers can reach the NFS server and all have outbound connectivity to the Internet. 
-- Master and the workers can reach the endpoint of the Ethereum 1.0 node that you use or build.
+- Every machine needs to have outbound connectivity to the Internet at least during installation. 
+- Masters and workers can reach to each other. We will configure the firewall in the following section to only allow the inbound traffic to thr ports required by MicroK8s. For more details, you can refer to [MicroK8s’ documentation: Services and ports](https://microk8s.io/docs/ports).
+- Masters and workers can reach the NFS server.
+- Masters and workers can reach the endpoint of the Ethereum 1.0 node.
 
 ## Walkthrough
 
@@ -236,7 +237,7 @@ Perform the following steps on all the machines:
 
 ### Install MicroK8s
 
-To install MicroK8s, you can refer to [MicroK8s' official installation guide](https://microk8s.io/docs) or follow the instructions below on both of the master and worker machines.
+To install MicroK8s, you can refer to [MicroK8s’ official installation guide](https://microk8s.io/docs) or follow the instructions below on both of the master and worker machines.
 
 1. Install and run MicroK8s.
 
@@ -376,7 +377,7 @@ sudo apt install nfs-common
 
 Please refer to Prysm’s [official documentation](https://docs.prylabs.network/docs/mainnet/joining-eth2/#step-4-import-your-validator-accounts-into-prysm).
 
-Let’s get back to the NFS server. We need to configure the wallet directories that we created in the previous section. Before proceeding, please have your validator keys placed on your NFS machine. We use `$HOME/eth2.0-deposit-cli/validator_keys` as the example path to the validator keys. To create a wallet and import your validator keys for Prysm validator client, we use Prysm's startup script.
+Let’s get back to the NFS server. We need to configure the wallet directories that we created in the previous section. Before proceeding, please have your validator keys placed on your NFS machine. We use `$HOME/eth2.0-deposit-cli/validator_keys` as the example path to the validator keys. To create a wallet and import your validator keys for Prysm validator client, we use Prysm’s startup script.
 
 1. Please follow Prysm’s [documentation](https://docs.prylabs.network/docs/install/install-with-script/#downloading-the-prysm-startup-script) to download Prysm startup script.
 
@@ -471,7 +472,7 @@ On your master:
     microk8s kubectl logs -f -nprysm -lapp=validator1
     ```
 
-    To check other validators, change -lapp to other validators' names specified in values.yaml, *e.g.* for checking the second validator.
+    To check other validators, change -lapp to other validators’ names specified in values.yaml, *e.g.* for checking the second validator.
 
     ```bash
     microk8s kubectl logs -f -nprysm -lapp=validator2
