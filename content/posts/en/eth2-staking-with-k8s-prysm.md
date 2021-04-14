@@ -9,7 +9,7 @@ As stakers, we all want to minimize downtime and the risk of being slashed.
 
 Minimizing downtime is a difficult objective to achieve since a validator might be down for various reasons: system failures, incomplete restart policies, connectivity issues, hardware maintenance or software bugs. Staking with two or more machines for redundancy naturally comes to mind.
 
-People might say, “redundancy leads to slashing!” which is a legitimate concern because we could accidentally run multiple validators with the same validator keys at the same time. Migrating the validators from a broken machine to the other with inappropriate procedure might in turn disrupt the slashing protection database . A staker with benign intention has the risk of being slashed due to the error-prone manual operations and the complexities increase when you have a high-availability setup. Needless to say, the experience could deteriorate if a staker runs multiple validators.
+People might say, “redundancy leads to slashing!” which is a legitimate concern because we could accidentally run multiple validators with the same validator keys at the same time. Migrating the validators from a broken machine to the other with inappropriate procedure might in turn corrupt the slashing protection database . A staker with benign intention has the risk of being slashed due to the error-prone manual operations and the complexities increase when you have a high-availability setup. Needless to say, the experience could deteriorate if a staker runs multiple validators.
 
 *Can we reduce the risk and the complexities of staking while running multiple validators and embracing redundancy?* Yes, we think [Kubernetes](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/) can help us manage the application’s lifecycle and automate the upgrade rollouts. The process of upgrading a client would be completed in one-step. Furthermore, migrating a client from one machine to another also would be a single command (*e.g.* kubectl drain node). 
 
@@ -37,9 +37,9 @@ This guide will help you to:
 - Create a Kubernetes cluster with MicroK8s. If you already have your prefered Kubernetes distribution running you can jump to the section “[Install and Configure NFS](#install-and-configure-nfs)”. If you are using managed Kubernetes services provided by cloud providers (*e.g.* AKS, EKS, and GKE), you may consider using cloud storage directly rather than NFS as the persistent storage. We will cover this topic in the future.
 - Install and configure NFS.
 - Prepare the Helm chart for multiple validators.
-- Install Prysm’s beacon and validator client with the Helm chart.
+- Install Prysm’s beacon and validator clients with the Helm chart.
 - Check client status.
-- Upgrade and roll back the Prysm’s beacon and validator client with the Helm chart.
+- Upgrade and roll back the Prysm’s beacon and validator clients with the Helm chart.
 
 ## Non-Goal
 
@@ -83,7 +83,7 @@ NFS:
 
 - You have funded your validators and have generated validator keys. If you need guidance, we recommend [Somer East’s guide](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-lighthouse-a634d3b87393).
 - Ethereum 1.0 “Goerli” node: [Somer East’s guide](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-prysm-a10b5129c7e3) also covers steps for building the Ethereum 1.0 node. You can also choose a third-party provider such as [Infura](https://infura.io/) or [Alchemy](https://alchemyapi.io/).
-- Planning your private network, firewall, and port forwarding. We have put our network configuration in the Walkthrough for your reference.
+- Planning your private network, firewall, and port forwarding. We have put our network configuration in the [Walkthrough](#overview) for your reference.
 - You have installed Ubuntu Server 20.04.2 LTS (x64) on all the servers and have assigned static IPs.
 
 ## Network Requirements
@@ -105,7 +105,7 @@ In this walkthrough, we will set up a Kubernetes cluster and a NFS server and in
 - Worker IP: 172.20.10.12
 - DNS: 8.8.8.8, 8.8.4.4 (Google’s DNS)
 
-### Initial System Update/Upgrade
+### System Update/Upgrade
 
 ```bash
 sudo apt update && sudo apt upgrade
@@ -117,7 +117,7 @@ sudo reboot
 
 Perform the following steps on all the machines:
 
-1. Set your timezone. Using America/Los_Angeles as an example: 
+1. Set your timezone. Using `America/Los_Angeles` as an example:
 
     ```bash
     timedatectl list-timezones
@@ -142,7 +142,7 @@ Perform the following steps on all the machines:
     sudo nano /etc/chrony/chrony.conf
     ```
 
-    Add the following pools:
+    Add the following pools as the clock sources:
 
     ```bash
     pool time.google.com     iburst minpoll 1 maxpoll 2 maxsources 3
@@ -153,8 +153,8 @@ Perform the following steps on all the machines:
     Update the two settings:
 
     ```bash
-    maxupdateskew 5.0
-    makestep 0.1 -1
+    maxupdateskew 5.0 # The threshold for determining whether an estimate is too unreliable to be used.
+    makestep 0.1 -1  # This would step the system clock if the adjustment is larger than 0.1 seconds.
     ```
 
 5. Restart the service.
@@ -184,7 +184,7 @@ Perform the following steps on all the machines:
     sudo ufw default allow outgoing
     ```
 
-2. (Optional) We suggest changing the ssh port from `22` another port for security. You can open the `sshd_config` config file and change the port setting:
+2. (**Optional**) We suggest changing the ssh port from `22` to another port for security. You can open the `sshd_config` config file and change the port setting:
 
     ```bash
     sudo nano /etc/ssh/sshd_config
@@ -196,7 +196,7 @@ Perform the following steps on all the machines:
     sudo service sshd restart
     ```
 
-    No matter which port is used, remember to allow incoming traffic from your ssh port over TCP:
+    No matter which port is used, remember to allow incoming traffic to your ssh port over TCP:
 
     ```bash
     sudo ufw allow <ssh-port>/tcp
@@ -245,7 +245,7 @@ To install MicroK8s, you can refer to [MicroK8s’ official installation guide](
     sudo snap install microk8s --classic --channel=1.20/stable
     ```
 
-2. To grant your current user (a non-root user) the admin privilege required by MicroK8s commands, add the current user to the MicroK8s group in order to gain access to the `~/.kube` folder.
+2. To grant your non-root user the admin privilege to execute MicroK8s commands, add the user to the MicroK8s group and change the owner of `~/.kube` directory.
 
     ```bash
     sudo usermod -a -G microk8s $USER
@@ -377,7 +377,7 @@ sudo apt install nfs-common
 
 Please refer to Prysm’s [official documentation](https://docs.prylabs.network/docs/mainnet/joining-eth2/#step-4-import-your-validator-accounts-into-prysm).
 
-Let’s get back to the NFS server. We need to configure the wallet directories that we created in the previous section. Before proceeding, please have your validator keys placed on your NFS machine. We use `$HOME/eth2.0-deposit-cli/validator_keys` as the example path to the validator keys. To create a wallet and import your validator keys for Prysm validator client, we use Prysm’s startup script.
+Let’s get back to the NFS server. We need to configure the wallet directories that we created in the previous section. Before proceeding, please have your validator keys placed on your NFS machine. We use `$HOME/eth2.0-deposit-cli/validator_keys` as the example path to the validator keys. To create a wallet and import your validator keys for Prysm validator clients, we use Prysm’s startup script.
 
 1. Please follow Prysm’s [documentation](https://docs.prylabs.network/docs/install/install-with-script/#downloading-the-prysm-startup-script) to download Prysm startup script.
 
@@ -415,7 +415,7 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
 
 2. Change values in [./eth2prysm/values.yaml](https://github.com/eth2xk8s/eth2xk8s/blob/master/eth2prysm/values.yaml).
 
-    We recommend checking each field in values.yaml to determine the desired configuration. Fields that need to be changed or verified before installing the chart are the following ones:
+    We recommend checking each field in `values.yaml` to determine the desired configuration. Fields that need to be changed or verified before installing the chart are the following ones:
     - **nfs.serverIp**: NFS server IP address.
     - **image.version**: Prysm client version.
     - **beacon.dataVolumePath**: The path to the data directory on the NFS for the beacon node.
@@ -472,7 +472,7 @@ On your master:
     microk8s kubectl logs -f -nprysm -lapp=validator1
     ```
 
-    To check other validators, change -lapp to other validators’ names specified in values.yaml, *e.g.* for checking the second validator.
+    To check other validators, change -lapp to other validators’ names specified in `values.yaml`, *e.g.* for checking the second validator.
 
     ```bash
     microk8s kubectl logs -f -nprysm -lapp=validator2
