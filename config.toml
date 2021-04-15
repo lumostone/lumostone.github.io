@@ -6,12 +6,12 @@ defaultContentLanguageInSubdir = true
 
 [languages]
   [languages.en]
-    contentDir = "content/posts/en"
+    contentDir = "content/en/posts"
     title = "lumostone"
     languageName = "English"
     weight = 1
   [languages.zh-tw]
-    contentDir = "content/posts/zh-tw"
+    contentDir = "content/zh-tw/posts"
     title = "lumostone"
     languageName = "繁體中文"
     weight = 2
@@ -26,7 +26,11 @@ defaultContentLanguageInSubdir = true
 [params]
   enableSummary = true
   smartToc = true
+  footer = [{ url = "https://github.com/lumostone/lumostone.github.io", text = "Source code hosted on Github." }]
 
 [markup]
   [markup.highlight]
     style = "monokailight"
+
+[social]
+  github = "https://github.com/lumostone"

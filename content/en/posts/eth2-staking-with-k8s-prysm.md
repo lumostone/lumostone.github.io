@@ -1,7 +1,7 @@
 ---
 title: "Guide to Ethereum 2.0 Staking with Kubernetes and Prysm"
 date: 2021-04-12T23:53:09Z
-draft: true
+draft: false
 tags: ["ethereum", "kubernetes", "tutorial"]
 ---
 
