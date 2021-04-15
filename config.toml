@@ -4,6 +4,8 @@ languageCode = "en-us"
 defaultContentLanguage = "en"
 defaultContentLanguageInSubdir = true
 
+googleAnalytics = "G-T9LBVECNMJ"
+
 [languages]
   [languages.en]
     contentDir = "content/en/posts"
