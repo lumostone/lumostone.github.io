@@ -82,8 +82,8 @@ NFS:
 
 ## Prerequisites
 
-- You have funded your validators and have generated validator keys. If you need guidance, we recommend [Somer East’s guide](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-lighthouse-a634d3b87393).
-- Ethereum 1.0 “Goerli” node: [Somer East’s guide](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-prysm-a10b5129c7e3) also covers steps for building the Ethereum 1.0 node. You can also choose a third-party provider such as [Infura](https://infura.io/) or [Alchemy](https://alchemyapi.io/).
+- You have funded your validators and have generated validator keys. If you need guidance, we recommend [Somer Esat’s guide](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-lighthouse-a634d3b87393).
+- Ethereum 1.0 “Goerli” node: [Somer Esat’s guide](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-prysm-a10b5129c7e3) also covers steps for building the Ethereum 1.0 node. You can also choose a third-party provider such as [Infura](https://infura.io/) or [Alchemy](https://alchemyapi.io/).
 - Planning your private network, firewall, and port forwarding. We have put our network configuration in the [Walkthrough](#overview) for your reference.
 - You have installed Ubuntu Server 20.04.2 LTS (x64) on all the servers and have assigned static IPs.
 
