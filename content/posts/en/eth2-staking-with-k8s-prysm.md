@@ -12,7 +12,7 @@ Minimizing downtime is a difficult objective to achieve since a validator might 
 
 People might say, “redundancy leads to slashing!” which is a legitimate concern because we could accidentally run multiple validators with the same validator keys at the same time. Migrating the validators from a broken machine to the other with inappropriate procedure might in turn corrupt the slashing protection database . A staker with benign intention has the risk of being slashed due to the error-prone manual operations and the complexities increase when you have a high-availability setup. Needless to say, the experience could deteriorate if a staker runs multiple validators.
 
-*Can we reduce the risk and the complexities of staking while running multiple validators and embracing redundancy?* Yes, we think [Kubernetes](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/) can help us manage the application’s lifecycle and automate the upgrade rollouts. The process of upgrading a client would be completed in one-step. Furthermore, migrating a client from one machine to another also would be a single command (*e.g.* kubectl drain node). 
+_Can we reduce the risk and the complexities of staking while running multiple validators and embracing redundancy?_ Yes, we think [Kubernetes](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/) can help us manage the application’s lifecycle and automate the upgrade rollouts. The process of upgrading a client would be completed in one-step. Furthermore, migrating a client from one machine to another also would be a single command (*e.g.* kubectl drain node). 
 
 We hope this experiment and the setup guide can be a stepping stone for the community to stake with Kubernetes for Ethereum 2.0. Embrace the redundancy and stake with ease and scalability.
 
@@ -340,7 +340,7 @@ On the machine you plan to run NFS:
 
     Please note that each wallet can only be used by a single validator client. You can import multiple validator keys into the same wallet and use **one validator client** to attest/propose blocks for multiple validators. 
     
-    *To avoid slashing, do not use multiple validator clients with the same wallet or have the same key imported into different wallets used by different validator clients.*
+    _To avoid slashing, do not use multiple validator clients with the same wallet or have the same key imported into different wallets used by different validator clients._
 
 3. Configure and export NFS storage.
 
