@@ -254,7 +254,7 @@ To install MicroK8s, you can refer to [MicroK8s’ official installation guide](
     su - $USER # Re-enter the session for the update to take place.
     ```
 
-3. Wait for the MicroK8s to be ready.
+3. Wait for MicroK8s to be ready.
 
     ```bash
     microk8s status --wait-ready
@@ -337,7 +337,9 @@ On the machine you plan to run NFS:
     sudo mkdir -p /data/prysm/validator-2 /data/prysm/wallet-2
     ```
 
-    Please note that each wallet can only be used by a single validator client. You can import multiple validator keys into the same wallet and use **one validator client** to attest/propose blocks for multiple validators. To avoid slashing, do not use multiple validator clients with the same wallet or have the same key imported into different wallets used by different validator clients.
+    Please note that each wallet can only be used by a single validator client. You can import multiple validator keys into the same wallet and use **one validator client** to attest/propose blocks for multiple validators. 
+    
+    *To avoid slashing, do not use multiple validator clients with the same wallet or have the same key imported into different wallets used by different validator clients.*
 
 3. Configure and export NFS storage.
 
@@ -377,11 +379,11 @@ sudo apt install nfs-common
 
 Please refer to Prysm’s [official documentation](https://docs.prylabs.network/docs/mainnet/joining-eth2/#step-4-import-your-validator-accounts-into-prysm).
 
-Let’s get back to the NFS server. We need to configure the wallet directories that we created in the previous section. Before proceeding, please have your validator keys placed on your NFS machine. We use `$HOME/eth2.0-deposit-cli/validator_keys` as the example path to the validator keys. To create a wallet and import your validator keys for Prysm validator clients, we use Prysm’s startup script.
+Let’s get back to the NFS server. We need to configure the wallet directories that we created in the previous section. Before proceeding, please have your validator keys placed on your NFS machine. To create a wallet and import your validator keys for Prysm validator clients, we use Prysm’s startup script.
 
 1. Please follow Prysm’s [documentation](https://docs.prylabs.network/docs/install/install-with-script/#downloading-the-prysm-startup-script) to download Prysm startup script.
 
-2. Execute the startup script. We placed the validator keys under `$HOME/eth2.0-deposit-cli/validator_keys`which is the key directory we are using in the following command.
+2. Execute the startup script with `--keys-dir=<path/to/validator-keys>` (Remember to replace it with the directory you place the keys). We use `$HOME/eth2.0-deposit-cli/validator_keys` as the example path to the validator keys.
 
     ```bash
     sudo ./prysm.sh validator accounts import --keys-dir=$HOME/eth2.0-deposit-cli/validator_keys
@@ -395,10 +397,10 @@ Let’s get back to the NFS server. We need to configure the wallet directories 
 
 ### Change the owner of the data folder
 
-On the NFS machine, let’s change the directories ownership so later these directories can be mounted by Kubernetes as the storage volumes for the pods running the beacon node and the validator. 
+On the NFS machine, let’s change the directory owners so later these directories can be mounted by Kubernetes as the storage volumes for the pods running the beacon node and the validator. 
 
 ```bash
-sudo chown -R 1001:2000 /data
+sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
 ```
 
 ### Prepare the Helm Chart
@@ -417,6 +419,8 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
 
     We recommend checking each field in `values.yaml` to determine the desired configuration. Fields that need to be changed or verified before installing the chart are the following ones:
     - **nfs.serverIp**: NFS server IP address.
+    - **nfs.user**: The user ID is used to run all processes in the container that accesses the NFS.
+    - **nfs.group**: The group ID is used to grant limited file access to the processes in the container.
     - **image.version**: Prysm client version.
     - **beacon.dataVolumePath**: The path to the data directory on the NFS for the beacon node.
     - **beacon.web3Provider** and **beacon.fallbackWeb3Providers**: Ethereum 1 node endpoints.
@@ -426,7 +430,7 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
 
 ### Install Prysm via Helm Chart
 
-Kubernetes has the concept of [namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) to define scopes for names and isolate accesses between resources. We use “prysm” as the namespace for the Prysm client. 
+Kubernetes has the concept of [namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) to define scopes for names and isolate accesses between resources. We use `prysm` as the namespace for the Prysm client. 
 
 Helm uses [releases](https://helm.sh/docs/glossary/#release) to track each of the chart installations. In this guide, we specify our release name as “eth2xk8s”, you can change it to anything you prefer.
 
