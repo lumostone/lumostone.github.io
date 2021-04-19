@@ -64,7 +64,7 @@ Here are the recommended system requirements based on our testing on the [**Pyrm
 
 Master:
 
-- RAM: 8GB
+- RAM: 8GB minimum
 - CPU: 1 core minimum
 - Disk: 20 GB minimum
 
@@ -100,7 +100,7 @@ NFS:
 
 In this walkthrough, we will set up a Kubernetes cluster and a NFS server and install the beacon node and the validator clients. We put all the machines in the same private subnet and have assigned a static private IP for each machine. Here are the network configurations we use throughout this guide for the three machines:
 
-**Private subnet :172.20.0.0/20 (172.20.0.1 - 172.20.15.254)**
+**Private subnet: 172.20.0.0/20 (172.20.0.1 - 172.20.15.254)**
 - NFS IP: 172.20.10.10
 - Master IP: 172.20.10.11
 - Worker IP: 172.20.10.12
@@ -372,9 +372,9 @@ On the machine you plan to run NFS:
 
 On your master and worker nodes, enable NFS support by installing nfs-common:
 
-```bash
-sudo apt install nfs-common
-```
+    ```bash
+    sudo apt install nfs-common
+    ```
 
 ### Prepare Validator Wallets
 
