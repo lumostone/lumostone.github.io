@@ -370,7 +370,7 @@ On the machine you plan to run NFS:
     ```
 
 
-On your master and worker nodes, enable NFS support by installing nfs-common:
+4. On your master and worker nodes, enable NFS support by installing nfs-common:
 
     ```bash
     sudo apt install nfs-common
