@@ -28,7 +28,7 @@ tags: ["以太坊", "kubernetes", "教學"]
 - [MicroK8s](https://microk8s.io/) 輕量的 Kubernertes 發行版（[安裝教學](https://microk8s.io/docs)）.
 - [Helm 3](https://helm.sh/) Kubernetes 套件管理工具
 - [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) Kubernetes CLI 工具
-- Ubuntu Server 20.04.2 LTS (x64) ([下載連結](https://ubuntu.com/download/server))
+- Ubuntu Server 20.04.2 LTS (x64) （[下載連結](https://ubuntu.com/download/server)）
 - [Network File System (NFS)](https://en.wikipedia.org/wiki/Network_File_System) 作為 beacon 與 validator 的持久性儲存系統（[Ubuntu 文件與教學](https://ubuntu.com/server/docs/service-nfs)）
 - [eth2xk8s](https://github.com/lumostone/eth2xk8s) Helm Chart.
 
