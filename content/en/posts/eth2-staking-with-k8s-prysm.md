@@ -1,6 +1,6 @@
 ---
 title: "Guide to Ethereum 2.0 Staking with Kubernetes and Prysm"
-date: 2021-04-12T23:53:09Z
+date: 2021-04-19T23:53:09Z
 draft: false
 tags: ["ethereum", "kubernetes", "tutorial"]
 ---
@@ -44,11 +44,12 @@ This guide will help you to:
 
 ## Non-Goal
 
-This guide does not:
+This guide does not cover the following topics:
 
-- Cover the performance tuning and sizing.
-- Cover the steps to fund the validators and to generate the validator keys.
-- Include Kubernetes cluster high availability (HA) configuration and security hardening.
+- Performance tuning and sizing.
+- Guide to fund the validators and to generate the validator keys.
+- Kubernetes cluster high availability (HA) configuration.
+- Kubernetes cluster security hardening.
 
 ## Disclaimer
 
@@ -60,23 +61,23 @@ We all stake at our own risk. Please always do the experiments and dry-run on th
 
 We need at least 3 machines (virtual machines or bare-metal machines) in total for this setup. One machine will be the NFS server to store the staking data, the second machine will be the “master” node to run the Kubernetes core components, and finally, the third machine will be the “worker” node to run the workloads, which are the beacon and validators, in the Kubernetes cluster. For high availability (HA), you can consider adding more nodes by following [MicroK8s’ High Availability documentation](https://microk8s.io/docs/high-availability) and regularly backing up the beacon data for fast startup. We will discuss HA configurations in subsequent posts. 
 
-Here are the recommended system requirements based on our testing on the [**Pyrmont testnet**](https://pyrmont.beaconcha.in/) and MicroK8s’ [official documentation](https://microk8s.io/docs). Please note that meeting the minimal requirements does not guarantee optimal performance or cost efficiency. 
+Here are the recommended system requirements based on our testing on the [**Pyrmont testnet**](https://pyrmont.beaconcha.in/) and [MicroK8s’ documentation](https://microk8s.io/docs). **Please note that meeting the minimal requirements does not guarantee optimal performance or cost efficiency.**
 
 Master:
 
-- RAM: 8GB
+- RAM: 8 GB minimum
 - CPU: 1 core minimum
 - Disk: 20 GB minimum
 
 Worker:
 
-- RAM: 8GB minimum
+- RAM: 8 GB minimum
 - CPU: 1 core minimum
 - Disk: 20 GB minimum
 
 NFS:
 
-- RAM: 2GB minimum
+- RAM: 2 GB minimum
 - CPU: 1 core minimum
 - Disk: 250 GB minimum (Again, please note it is for testnet. For running on the mainnet, you may need more storage.)
 
@@ -89,7 +90,7 @@ NFS:
 
 ## Prerequisites
 
-- You have funded your validators and have generated validator keys. If you need guidance, we recommend [Somer Esat’s guide](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-lighthouse-a634d3b87393).
+- You have funded your validators and have generated validator keys. If you need guidance, we recommend [Somer Esat’s guide](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-prysm-a10b5129c7e3).
 - Ethereum 1.0 “Goerli” node: [Somer Esat’s guide](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-prysm-a10b5129c7e3) also covers steps for building the Ethereum 1.0 node. You can also choose a third-party provider such as [Infura](https://infura.io/) or [Alchemy](https://alchemyapi.io/).
 - Planning your private network, firewall, and port forwarding. We have put our network configuration in the [Walkthrough](#overview) for your reference.
 - You have installed Ubuntu Server 20.04.2 LTS (x64) on all the servers and have assigned static IPs.
@@ -100,7 +101,7 @@ NFS:
 
 In this walkthrough, we will set up a Kubernetes cluster and a NFS server and install the beacon node and the validator clients. We put all the machines in the same private subnet and have assigned a static private IP for each machine. Here are the network configurations we use throughout this guide for the three machines:
 
-**Private subnet :172.20.0.0/20 (172.20.0.1 - 172.20.15.254)**
+**Private subnet: 172.20.0.0/20 (172.20.0.1 - 172.20.15.254)**
 - NFS IP: 172.20.10.10
 - Master IP: 172.20.10.11
 - Worker IP: 172.20.10.12
@@ -242,7 +243,7 @@ Perform step 1-3 on all the machines:
 
 ### Install MicroK8s
 
-To install MicroK8s, you can refer to [MicroK8s’ official installation guide](https://microk8s.io/docs) or follow the instructions below on both of the master and worker machines.
+To install MicroK8s, you can refer to [MicroK8s’ installation guide](https://microk8s.io/docs) or follow the instructions below on both of the master and worker machines.
 
 1. Install and run MicroK8s.
 
@@ -279,7 +280,7 @@ Please finish the previous section and make sure MicroK8s is running on both mas
 
 On the master:
 
-1. Enable DNS and Helm3.
+1. Enable DNS and Helm 3.
 
     ```bash
     microk8s enable dns helm3
@@ -322,7 +323,7 @@ On the worker:
 
 ### Install and Configure NFS
 
-You can refer to the [guide for NFS installation and configuration on Ubuntu](https://ubuntu.com/server/docs/service-nfs) or follow the instructions below.
+You can refer to the [Ubuntu's documentation: NFS installation and configuration](https://ubuntu.com/server/docs/service-nfs) or follow the instructions below.
 
 On the machine you plan to run NFS:
 
@@ -342,7 +343,7 @@ On the machine you plan to run NFS:
     sudo mkdir -p /data/prysm/validator-2 /data/prysm/wallet-2
     ```
 
-    Please note that each wallet can only be used by a single validator client. You can import multiple validator keys into the same wallet and use **one validator client** to attest/propose blocks for multiple validators. 
+   **Please note that each wallet can only be used by a single validator client.** You can import multiple validator keys into the same wallet and use one validator client to attest/propose blocks for multiple validators. 
     
     _To avoid slashing, do not use multiple validator clients with the same wallet or have the same key imported into different wallets used by different validator clients._
 
@@ -374,19 +375,19 @@ On the machine you plan to run NFS:
     ```
 
 
-On your master and worker nodes, enable NFS support by installing `nfs-common`:
+4. On your master and worker nodes, enable NFS support by installing `nfs-common`:
 
-```bash
-sudo apt install nfs-common
-```
+    ```bash
+    sudo apt install nfs-common
+    ```
 
 ### Prepare Validator Wallets
 
-Please refer to Prysm’s [official documentation](https://docs.prylabs.network/docs/mainnet/joining-eth2/#step-4-import-your-validator-accounts-into-prysm).
+Please refer to [Prysm’s documentation](https://docs.prylabs.network/docs/mainnet/joining-eth2/#step-4-import-your-validator-accounts-into-prysm).
 
 Let’s get back to the NFS server. Before proceeding, please have your validator keys placed on your NFS machine. We are going to prepare the wallet with wallet directories that we created in the previous section, and then import the validator keys into the wallet. To create a wallet and import your validator keys for Prysm validator clients, we use Prysm’s startup script.
 
-1. Please follow Prysm’s [documentation](https://docs.prylabs.network/docs/install/install-with-script/#downloading-the-prysm-startup-script) to download Prysm startup script.
+1. Please follow [Prysm’s documentation](https://docs.prylabs.network/docs/install/install-with-script/#downloading-the-prysm-startup-script) to download Prysm startup script.
 
 2. Execute the startup script with `--keys-dir=<path/to/validator-keys>` (Remember to replace it with the directory you place the keys). We use `$HOME/eth2.0-deposit-cli/validator_keys` as the example path to the validator keys.
 
@@ -428,7 +429,7 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
     - **nfs.group**: The group ID will be used to run all processes in the container. The group should have the access to the mounted NFS volume. We use the group ID to grant limited file access to the processes so it won't use the root group directly.
     - **image.version**: Prysm client version.
     - **beacon.dataVolumePath**: The path to the data directory on the NFS for the beacon node.
-    - **beacon.web3Provider** and **beacon.fallbackWeb3Providers**: Ethereum 1 node endpoints.
+    - **beacon.web3Provider** and **beacon.fallbackWeb3Providers**: Ethereum 1.0 node endpoints.
     - **validators.validator1.dataVolumePath**: The path to the data directory on the NFS for the validator.
     - **validators.validator1.walletVolumePath**: The path to the data directory on the NFS for the wallet.
     - **validators.validator1.walletPassword**: The wallet password.
@@ -437,7 +438,7 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
 
 Kubernetes has the concept of [namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) to define scopes for names and isolate accesses between resources. We use `prysm` as the namespace for the Prysm client. 
 
-Helm uses [releases](https://helm.sh/docs/glossary/#release) to track each of the chart installations. In this guide, we specify our release name as “eth2xk8s”, you can change it to anything you prefer.
+Helm uses [releases](https://helm.sh/docs/glossary/#release) to track each of the chart installations. In this guide, we specify our release name as `eth2xk8s`, you can change it to anything you prefer.
 
 On your master:
 
@@ -519,7 +520,7 @@ Rolling back with Helm is usually as straightforward as upgrading when there’s
     microk8s helm3 history eth2xk8s -nprysm
     ```
 
-2. If we want to roll back to revision 4,
+2. If we want to roll back to revision 4
 
     ```bash
     microk8s helm3 rollback eth2xk8s 4 -nprysm
@@ -571,7 +572,7 @@ microk8s helm3 uninstall eth2xk8s -nprysm
 
 ### Roll Back the Release with Helm (Schema Changes)
 
-Take [Prysm v1.3.0 release for example](https://github.com/prysmaticlabs/prysm/releases/tag/v1.3.0) as an example. If you decide to roll back to v1.2.x after upgrading to v1.3.0, you’ll need to run a script first to reverse the database migration. If we use instructions in [Roll Back the Release with Helm](#roll-back-the-release-with-helm) directly, the pods will restart right after the version is changed by Helm and the client might not run due to the unmatched schema.
+Take [Prysm v1.3.0 release](https://github.com/prysmaticlabs/prysm/releases/tag/v1.3.0) as an example. If you decide to roll back to v1.2.x after upgrading to v1.3.0, you’ll need to run a script first to reverse the database migration. If we use instructions in [Roll Back the Release with Helm](#roll-back-the-release-with-helm) directly, the pods will restart right after the version is changed by Helm and the client might not run due to the unmatched schema.
 
 Hence, we can take advantage of Kubernetes to help us temporarily scale down the pods and then to run the reverse migration script before rolling back.
 
