@@ -515,7 +515,7 @@ Rolling back with Helm is usually as straightforward as upgrading when there’s
     microk8s helm3 history eth2xk8s -nprysm
     ```
 
-2. If we want to roll back to revision 4,
+2. If we want to roll back to revision 4
 
     ```bash
     microk8s helm3 rollback eth2xk8s 4 -nprysm
@@ -567,7 +567,7 @@ microk8s helm3 uninstall eth2xk8s -nprysm
 
 ### Roll Back the Release with Helm (Schema Changes)
 
-Take [Prysm v1.3.0 release for example](https://github.com/prysmaticlabs/prysm/releases/tag/v1.3.0) as an example. If you decide to roll back to v1.2.x after upgrading to v1.3.0, you’ll need to run a script first to reverse the database migration. If we use instructions in [Roll Back the Release with Helm](#roll-back-the-release-with-helm) directly, the pods will restart right after the version is changed by Helm and the client might not run due to the unmatched schema.
+Take [Prysm v1.3.0 release](https://github.com/prysmaticlabs/prysm/releases/tag/v1.3.0) as an example. If you decide to roll back to v1.2.x after upgrading to v1.3.0, you’ll need to run a script first to reverse the database migration. If we use instructions in [Roll Back the Release with Helm](#roll-back-the-release-with-helm) directly, the pods will restart right after the version is changed by Helm and the client might not run due to the unmatched schema.
 
 Hence, we can take advantage of Kubernetes to help us temporarily scale down the pods and then to run the reverse migration script before rolling back.
 
