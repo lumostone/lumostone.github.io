@@ -91,7 +91,7 @@ NFS：
 
 ## 事前準備
 
-- 已為 validator 存入足夠的押金，並已產生validator 金鑰。如果需要參考步驟，我們推薦 [Somer Esat 的教學文章](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-prysm-a10b5129c7e3)。
+- 已為 validator 存入足夠的押金，並已產生 validator 金鑰。如果需要參考步驟，我們推薦 [Somer Esat 的教學文章](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-prysm-a10b5129c7e3)。
 - 已擁有一個以太坊 1.0 測試網路 Goerli 的節點：[Somer Esat 的教學文章](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-prysm-a10b5129c7e3)也包含了如何架設以太坊 1.0 的測試網路節點，你也可以選擇使用第三方的服務如 [Infura](https://infura.io/) 或 [Alchemy](https://alchemyapi.io/)。
 - 規劃好內網，設定好防火牆跟轉發通訊埠。在「[設定步驟](#設定步驟)」章節會提到我們使用的網路設定。
 - 已在三台機器安裝 Ubuntu Server 20.04.2 LTS (x64) ，並已指派靜態 IP 位址。
