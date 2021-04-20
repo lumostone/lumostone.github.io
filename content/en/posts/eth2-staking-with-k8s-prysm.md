@@ -25,11 +25,11 @@ In this step-by-step guide, we run one beacon node with multiple validators in a
 
 - [Prysm](https://github.com/prysmaticlabs/prysm) as the Ethereum 2.0 Client.
 - [MicroK8s](https://microk8s.io/) as the Kubernertes destribution ([installation guide](https://microk8s.io/docs)).
-- [Helm](https://helm.sh/) to manage packages and releases.
+- [Helm 3](https://helm.sh/) to manage packages and releases.
 - [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) to run commands against Kubernetes clusters.
 - Ubuntu Server 20.04.2 LTS (x64) ([download link](https://ubuntu.com/download/server)).
 - [Network File System (NFS)](https://en.wikipedia.org/wiki/Network_File_System) as beacon and validator’s persistent storage ([Guide for NFS installation and configuration on Ubuntu](https://ubuntu.com/server/docs/service-nfs)).
-- [eth2xk8s](https://github.com/eth2xk8s/eth2xk8s) Helm chart.
+- [eth2xk8s](https://github.com/lumostone/eth2xk8s) Helm Chart.
 
 ## Goal
 
@@ -37,10 +37,10 @@ This guide will help you to:
 
 - Create a Kubernetes cluster with MicroK8s. If you already have your prefered Kubernetes distribution running you can jump to the section “[Install and Configure NFS](#install-and-configure-nfs)”. If you are using managed Kubernetes services provided by cloud providers (*e.g.* AKS, EKS, and GKE), you may consider using cloud storage directly rather than NFS as the persistent storage. We will cover this topic in the future.
 - Install and configure NFS.
-- Prepare the Helm chart for multiple validators.
-- Install Prysm’s beacon and validator clients with the Helm chart.
+- Prepare the Helm Chart for multiple validators.
+- Install Prysm’s beacon and validator clients with the Helm Chart.
 - Check client status.
-- Upgrade and roll back the Prysm’s beacon and validator clients with the Helm chart.
+- Upgrade and roll back the Prysm’s beacon and validator clients with the Helm Chart.
 
 ## Non-Goal
 
@@ -80,19 +80,19 @@ NFS:
 - CPU: 1 core minimum
 - Disk: 250 GB minimum (Again, please note it is for testnet. For running on the mainnet, you may need more storage.)
 
+## Network Requirements
+
+- Every machine needs to have outbound connectivity to the Internet at least during installation. 
+- Masters and workers can reach to each other. We will configure the firewall in the following section to only allow the inbound traffic to the ports required by MicroK8s. For more details, you can refer to [MicroK8s’ documentation: Services and ports](https://microk8s.io/docs/ports).
+- Masters and workers can reach the NFS server.
+- Masters and workers can reach the endpoint of the Ethereum 1.0 “Goerli” node (Please refer to [Prerequisites](#prerequisites) for more information).
+
 ## Prerequisites
 
 - You have funded your validators and have generated validator keys. If you need guidance, we recommend [Somer Esat’s guide](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-lighthouse-a634d3b87393).
 - Ethereum 1.0 “Goerli” node: [Somer Esat’s guide](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-prysm-a10b5129c7e3) also covers steps for building the Ethereum 1.0 node. You can also choose a third-party provider such as [Infura](https://infura.io/) or [Alchemy](https://alchemyapi.io/).
 - Planning your private network, firewall, and port forwarding. We have put our network configuration in the [Walkthrough](#overview) for your reference.
 - You have installed Ubuntu Server 20.04.2 LTS (x64) on all the servers and have assigned static IPs.
-
-## Network Requirements
-
-- Every machine needs to have outbound connectivity to the Internet at least during installation. 
-- Masters and workers can reach to each other. We will configure the firewall in the following section to only allow the inbound traffic to the ports required by MicroK8s. For more details, you can refer to [MicroK8s’ documentation: Services and ports](https://microk8s.io/docs/ports).
-- Masters and workers can reach the NFS server.
-- Masters and workers can reach the endpoint of the Ethereum 1.0 node.
 
 ## Walkthrough
 
@@ -107,6 +107,8 @@ In this walkthrough, we will set up a Kubernetes cluster and a NFS server and in
 - DNS: 8.8.8.8, 8.8.4.4 (Google’s DNS)
 
 ### System Update/Upgrade
+
+Please run the commands below on all the machines:
 
 ```bash
 sudo apt update && sudo apt upgrade
@@ -137,7 +139,7 @@ Perform the following steps on all the machines:
     sudo apt install chrony
     ```
 
-4. Edit the configuration.
+4. Edit the `chrony` configuration.
 
     ```bash
     sudo nano /etc/chrony/chrony.conf
@@ -158,7 +160,7 @@ Perform the following steps on all the machines:
     makestep 0.1 -1  # This would step the system clock if the adjustment is larger than 0.1 seconds.
     ```
 
-5. Restart the service.
+5. Restart the `chronyd` service.
 
     ```bash
     sudo systemctl restart chronyd
@@ -170,13 +172,15 @@ Perform the following steps on all the machines:
     chronyc sources
     ```
 
-    To view the current status of chrony.
+    To view the current status of `chrony`.
 
     ```bash
     chronyc tracking
     ```
 
 ### Configure Firewall
+
+Perform step 1-3 on all the machines:
 
 1. Set up default rules.
 
@@ -185,31 +189,31 @@ Perform the following steps on all the machines:
     sudo ufw default allow outgoing
     ```
 
-2. (**Optional**) We suggest changing the ssh port from `22` to another port for security. You can open the `sshd_config` config file and change the port setting:
+2. (**Optional**) We suggest changing the ssh port from `22` to another port for security. You can open the `sshd_config` config file and change `Port 22` to your designated port:
 
     ```bash
     sudo nano /etc/ssh/sshd_config
     ```
 
-    Change `Port 22` to your designated port and then restart the ssh service.
+    Then restart the `ssh` service.
 
     ```bash
     sudo service sshd restart
     ```
 
-    No matter which port is used, remember to allow incoming traffic to your ssh port over TCP:
+3. No matter which port is used, remember to allow inbound traffic to your ssh port over TCP:
 
     ```bash
     sudo ufw allow <ssh-port>/tcp
     ```
 
-3. On the NFS server, add the rule for NFS service:
+4. On the NFS server, add the rule for NFS service:
 
     ```bash
     sudo ufw allow 2049/tcp
     ```
 
-4. On the master and worker machines, add the rules for MicroK8s services:
+5. On the master and worker machines, add the rules for MicroK8s services:
 
     ```bash
     sudo ufw allow 16443/tcp
@@ -222,14 +226,14 @@ Perform the following steps on all the machines:
     sudo ufw allow 19001/tcp
     ```
 
-5. On the master and worker machines, add the rules for beacon node:
+6. On the master and worker machines, add the rules for beacon node:
 
     ```bash
     sudo ufw allow 12000/udp
     sudo ufw allow 13000/tcp
     ```
 
-6. Lastly, enable the firewall on each machine.
+7. Lastly, enable the firewall on each machine.
 
     ```bash
     sudo ufw enable
@@ -370,7 +374,7 @@ On the machine you plan to run NFS:
     ```
 
 
-4. On your master and worker nodes, enable NFS support by installing nfs-common:
+4. On your master and worker nodes, enable NFS support by installing `nfs-common`:
 
     ```bash
     sudo apt install nfs-common
@@ -380,7 +384,7 @@ On the machine you plan to run NFS:
 
 Please refer to Prysm’s [official documentation](https://docs.prylabs.network/docs/mainnet/joining-eth2/#step-4-import-your-validator-accounts-into-prysm).
 
-Let’s get back to the NFS server. We need to configure the wallet directories that we created in the previous section. Before proceeding, please have your validator keys placed on your NFS machine. To create a wallet and import your validator keys for Prysm validator clients, we use Prysm’s startup script.
+Let’s get back to the NFS server. Before proceeding, please have your validator keys placed on your NFS machine. We are going to prepare the wallet with wallet directories that we created in the previous section, and then import the validator keys into the wallet. To create a wallet and import your validator keys for Prysm validator clients, we use Prysm’s startup script.
 
 1. Please follow Prysm’s [documentation](https://docs.prylabs.network/docs/install/install-with-script/#downloading-the-prysm-startup-script) to download Prysm startup script.
 
@@ -406,22 +410,22 @@ sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
 
 ### Prepare the Helm Chart
 
-We understand it is not trivial to learn Kubernetes and create manifests or Helm charts for staking from scratch, so we’ve already done this for you to help you bootstrap! We uploaded all the manifests in our Github repository [eth2xk8s](https://github.com/eth2xk8s/eth2xk8s).
+We understand it is not trivial to learn Kubernetes and create manifests or Helm Charts for staking from scratch, so we’ve already done this for you to help you bootstrap! We uploaded all the manifests in our Github repository [eth2xk8s](https://github.com/lumostone/eth2xk8s).
 
-We use Helm to manage packages and releases in this guide. You can also use Kubernetes manifests directly. Please see [Testing with manifests and hostPath](https://github.com/eth2xk8s/eth2xk8s/blob/master/host-path/README.md) and [Testing with manifests and NFS](https://github.com/eth2xk8s/eth2xk8s/blob/master/nfs/README.md) for details.
+We use Helm to manage packages and releases in this guide. You can also use Kubernetes manifests directly. Please see [Testing with manifests and hostPath](https://github.com/lumostone/eth2xk8s/blob/master/host-path/README.md) and [Testing with manifests and NFS](https://github.com/lumostone/eth2xk8s/blob/master/nfs/README.md) for details.
 
 1. Clone this repo.
 
     ```bash
-    git clone https://github.com/eth2xk8s/eth2xk8s.git
+    git clone https://github.com/lumostone/eth2xk8s.git
     ```
 
-2. Change values in [./eth2prysm/values.yaml](https://github.com/eth2xk8s/eth2xk8s/blob/master/eth2prysm/values.yaml).
+2. Change values in [./eth2prysm/values.yaml](https://github.com/lumostone/eth2xk8s/blob/master/eth2prysm/values.yaml).
 
     We recommend checking each field in `values.yaml` to determine the desired configuration. Fields that need to be changed or verified before installing the chart are the following ones:
     - **nfs.serverIp**: NFS server IP address.
-    - **nfs.user**: The user ID is used to run all processes in the container that accesses the NFS.
-    - **nfs.group**: The group ID is used to grant limited file access to the processes in the container.
+    - **nfs.user**: The user ID will be used to run all processes in the container. The user should have the access to the mounted NFS volume.
+    - **nfs.group**: The group ID will be used to run all processes in the container. The group should have the access to the mounted NFS volume. We use the group ID to grant limited file access to the processes so it won't use the root group directly.
     - **image.version**: Prysm client version.
     - **beacon.dataVolumePath**: The path to the data directory on the NFS for the beacon node.
     - **beacon.web3Provider** and **beacon.fallbackWeb3Providers**: Ethereum 1 node endpoints.
@@ -468,19 +472,19 @@ On your master:
 2. Check the log of the beacon node.
 
     ```bash
-    microk8s kubectl logs -f -nprysm -lapp=beacon
+    microk8s kubectl logs -f -nprysm -l app=beacon
     ```
 
 3. Check the log of the first validator.
 
     ```bash
-    microk8s kubectl logs -f -nprysm -lapp=validator1
+    microk8s kubectl logs -f -nprysm -l app=validator1
     ```
 
-    To check other validators, change -lapp to other validators’ names specified in `values.yaml`, *e.g.* for checking the second validator.
+    To check other validators, change `-l app=<validator name>` to other validators’ names specified in `values.yaml`, *e.g.* for checking the second validator.
 
     ```bash
-    microk8s kubectl logs -f -nprysm -lapp=validator2
+    microk8s kubectl logs -f -nprysm -l app=validator2
     ```
 
 ### Upgrade the Prysm Version with Helm Chart
@@ -489,9 +493,9 @@ Ethereum 2.0 client teams work hard to push new versions frequently. Ideally, we
 
 1. Check [Prysm Github release page](https://github.com/prysmaticlabs/prysm/releases) to get the latest release version.
 
-2. Modify the `image.version` in `values.yaml` to the latest version, *e.g.* v1.3.4.
+2. Modify the `image.version` in `values.yaml` to the latest version, *e.g.* `v1.3.4`, and save the change in `values.yaml`.
 
-3. Save `values.yaml` and upgrade the client with the Helm upgrade command.
+3. Upgrade the client with the Helm upgrade command.
 
     ```bash
     microk8s helm3 upgrade eth2xk8s ./eth2prysm -nprysm
@@ -554,12 +558,12 @@ You can use [metrics server](https://github.com/kubernetes-sigs/metrics-server) 
 
     ```bash
     microk8s kubectl top pod -l app=beacon
-    kubectl top pod -l app=validator
+    microk8s kubectl top pod -l app=validator
     ```
 
 ### Uninstall Helm Chart
 
-If you want to stop and uninstall the Prysm client, you can uninstall the Helm chart with the following command:
+If you want to stop and uninstall the Prysm client, you can uninstall the Helm Chart with the following command:
 
 ```bash
 microk8s helm3 uninstall eth2xk8s -nprysm
