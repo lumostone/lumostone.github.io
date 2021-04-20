@@ -345,7 +345,7 @@ sudo reboot
     sudo mkdir -p /data/prysm/validator-2 /data/prysm/wallet-2
     ```
 
-    **請注意每一個錢包只能讓一個 validator 用戶端使用。**你可以匯入多個 validator 金鑰到同一個錢包，並讓一個 validator 用戶端來為多個 validators 提交區塊驗證結果。
+    **請注意每一個錢包只能讓一個 validator 用戶端使用。** 你可以匯入多個 validator 金鑰到同一個錢包，並讓一個 validator 用戶端來為多個 validators 提交區塊驗證結果。
     
     **為避免 slashing，請不要讓多個 validator 用戶端使用同一個錢包，或將同一把 validator 金鑰匯入多個有 validator 使用的錢包。**
 
