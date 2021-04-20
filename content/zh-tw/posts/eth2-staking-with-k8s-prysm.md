@@ -36,7 +36,7 @@ tags: ["以太坊", "kubernetes", "教學"]
 
 這份教學包含以下內容：
 
-- 使用 MicroK8s 建立一個 Kubernetes 叢集。如果你有已建好的 Kubernetes 叢集，或想使用其他的  Kubernetes 發行版，可以在建好叢集後跳至「[安裝和設定NFS](#安裝和設定-nfs)」章節。如果你是使用雲端服務提供商所提供的 Kubernetes托管服務（例如 AKS, EKS, GKE 等），你可以考慮直接使用雲端存儲服務（例如 Azure Disk, AWS S3 等）作為 beacon 與 validator 的持久性儲存系統，而非使用 NFS。我們未來會撰寫其他文章討論這個部分。
+- 使用 MicroK8s 建立一個 Kubernetes 叢集。如果你有已建好的 Kubernetes 叢集，或想使用其他的  Kubernetes 發行版，可以在建好叢集後跳至「[安裝和設定NFS](#安裝和設定-nfs)」章節。如果你是使用雲端服務提供商所提供的 Kubernetes 托管服務（例如 AKS, EKS, GKE 等），你可以考慮直接使用雲端存儲服務（例如 Azure Disk, AWS S3 等）作為 beacon 與 validator 的持久性儲存系統，而非使用 NFS。我們未來會撰寫其他文章討論這個部分。
 - 安裝和設定 NFS。
 - 準備用以安裝 validator 的 Helm Chart。
 - 使用 Helm Chart 安裝 Prysm 開發的 beacon 和 validator 用戶端。
