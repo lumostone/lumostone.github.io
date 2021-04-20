@@ -336,7 +336,7 @@ sudo reboot
     sudo systemctl start nfs-kernel-server.service
     ```
 
-2. 為 beacon 及 validator 錢包建立資料目錄
+2. 為 beacon、validator 及錢包建資料目錄
 
     ```bash
     sudo mkdir -p /data/prysm/beacon
