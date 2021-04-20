@@ -25,7 +25,7 @@ tags: ["以太坊", "kubernetes", "教學"]
 這份教學將示範如何在一個 Kubernetes 叢集上維運一個以太坊 2.0 beacon 用戶端和多個 validator 用戶端， 以下是我們使用的工具：
 
 - [Prysm](https://github.com/prysmaticlabs/prysm) 以太坊 2.0 用戶端
-- [MicroK8s](https://microk8s.io/) 輕量的 Kubernertes 發行版 （[安裝教學](https://microk8s.io/docs)）.
+- [MicroK8s](https://microk8s.io/) 輕量的 Kubernertes 發行版（[安裝教學](https://microk8s.io/docs)）.
 - [Helm 3](https://helm.sh/) Kubernetes 套件管理工具
 - [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) Kubernetes CLI 工具
 - Ubuntu Server 20.04.2 LTS (x64) ([下載連結](https://ubuntu.com/download/server))
