@@ -25,12 +25,12 @@ tags: ["以太坊", "kubernetes", "教學"]
 這份教學將示範如何在一個 Kubernetes 叢集上維運一個以太坊 2.0 beacon 用戶端和多個 validator 用戶端， 以下是我們使用的工具：
 
 - [Prysm](https://github.com/prysmaticlabs/prysm) 以太坊 2.0 用戶端
-- [MicroK8s](https://microk8s.io/) 輕量的 Kubernertes 發行版（[安裝教學](https://microk8s.io/docs)）.
+- [MicroK8s](https://microk8s.io/) 輕量的 Kubernertes 發行版（[安裝教學](https://microk8s.io/docs)）
 - [Helm 3](https://helm.sh/) Kubernetes 套件管理工具
 - [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) Kubernetes CLI 工具
 - Ubuntu Server 20.04.2 LTS (x64) （[下載連結](https://ubuntu.com/download/server)）
 - [Network File System (NFS)](https://en.wikipedia.org/wiki/Network_File_System) 作為 beacon 與 validator 的持久性儲存系統（[Ubuntu 文件與教學](https://ubuntu.com/server/docs/service-nfs)）
-- [eth2xk8s](https://github.com/lumostone/eth2xk8s) Helm Chart.
+- [eth2xk8s](https://github.com/lumostone/eth2xk8s) Helm Chart
 
 ## 本文目標
 
@@ -38,10 +38,10 @@ tags: ["以太坊", "kubernetes", "教學"]
 
 - 使用 MicroK8s 建立一個 Kubernetes 叢集。如果你有已建好的 Kubernetes 叢集，或想使用其他的  Kubernetes 發行版，可以在建好叢集後跳至「[安裝和設定NFS](#安裝和設定-nfs)」章節。如果你是使用雲端服務提供商所提供的 Kubernetes 托管服務（例如 AKS, EKS, GKE 等），你可以考慮直接使用雲端存儲服務（例如 Azure Disk, AWS S3 等）作為 beacon 與 validator 的持久性儲存系統，而非使用 NFS。我們未來會撰寫其他文章討論這個部分。
 - 安裝和設定 NFS。
-- 準備用以安裝 validator 的 Helm Chart。
-- 使用 Helm Chart 安裝 Prysm 開發的 beacon 和 validator 用戶端。
+- 準備用以安裝 Prysm 以太坊 2.0 用戶端的 Helm Chart。
+- 使用 Helm Chart 安裝 Prysm 以太坊 2.0 用戶端。
 - 確認用戶端狀態。
-- 使用 Helm Chart 升級和回溯 Prysm beacon 和 validator 用戶端。
+- 使用 Helm Chart 升級和回溯 Prysm 以太坊 2.0 用戶端。
 
 ## 非本文目標
 
@@ -87,7 +87,7 @@ NFS：
 - 所有機器皆有網際網路連線能力（至少在安裝過程中）。
 - 主要節點和工作節點網路可以互通。我們在後續的章節會設定 MicroK8s 所需要的防火牆規則，更多細節可參考 [MicroK8s 官方文件](https://microk8s.io/docs/ports)。
 - 主要節點和工作節點皆可連至 NFS 伺服器。
-- 主要節點和工作節點皆可連至為質押挖礦所準備的以太坊 1.0 “Goerli” 節點（請參考「[事前準備](#事前準備)」章節)。
+- 主要節點和工作節點皆可連至為質押挖礦所準備的以太坊 1.0 “Goerli” 節點（請參考「[事前準備](#事前準備)」章節）。
 
 ## 事前準備
 
@@ -254,8 +254,7 @@ sudo reboot
     sudo snap install microk8s --classic --channel=1.20/stable
     ```
 
-2. 授予非管理員使用者（non-root user）管理 MicroK8s 的權限。
-將該使用者加入 MicroK8s 的群組中，並改變`~/.kube` 目錄的所有權：
+2. 授予非管理員使用者（non-root user）管理 MicroK8s 的權限。將該使用者加入 MicroK8s 的群組中，並改變`~/.kube` 目錄的所有權：
 
     ```bash
     sudo usermod -a -G microk8s $USER
