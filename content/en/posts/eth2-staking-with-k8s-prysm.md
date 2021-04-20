@@ -343,7 +343,7 @@ On the machine you plan to run NFS:
     sudo mkdir -p /data/prysm/validator-2 /data/prysm/wallet-2
     ```
 
-   ** Please note that each wallet can only be used by a single validator client.** You can import multiple validator keys into the same wallet and use one validator client to attest/propose blocks for multiple validators. 
+   **Please note that each wallet can only be used by a single validator client.** You can import multiple validator keys into the same wallet and use one validator client to attest/propose blocks for multiple validators. 
     
     _To avoid slashing, do not use multiple validator clients with the same wallet or have the same key imported into different wallets used by different validator clients._
 
