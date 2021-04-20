@@ -384,7 +384,7 @@ sudo apt install nfs-common
 
 Please refer to Prysm’s [official documentation](https://docs.prylabs.network/docs/mainnet/joining-eth2/#step-4-import-your-validator-accounts-into-prysm).
 
-Let’s get back to the NFS server. Before proceeding, please have your validator keys placed on your NFS machine. We are going to prepare the wallet account with wallet directories that we created in the previous section, and then import the validator keys into the wallet. To create a wallet and import your validator keys for Prysm validator clients, we use Prysm’s startup script.
+Let’s get back to the NFS server. Before proceeding, please have your validator keys placed on your NFS machine. We are going to prepare the wallet with wallet directories that we created in the previous section, and then import the validator keys into the wallet. To create a wallet and import your validator keys for Prysm validator clients, we use Prysm’s startup script.
 
 1. Please follow Prysm’s [documentation](https://docs.prylabs.network/docs/install/install-with-script/#downloading-the-prysm-startup-script) to download Prysm startup script.
 
