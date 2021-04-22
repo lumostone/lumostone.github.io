@@ -62,7 +62,7 @@ tags: ["以太坊", "kubernetes", "教學"]
 
 我們需要至少三台機器（虛擬機或實體機皆可）來完成這份教學的設置。一台機器會作為 NFS 伺服器來儲存 staking 資料；第二台機器作為 Kubernetes 叢集裡的「主要」（master）節點，用來運行 Kubernetes 的核心元件；第三台機器則是 Kubernetes 叢集裡的 「工作」（worker）節點用以執行 beacon 及 validator 用戶端。若要作高可用性配置，請參考 [MicroK8s 高可用性設定文件](https://microk8s.io/docs/high-availability)來新增更多的節點，並定期備份 beacon 資料，這樣在資料毀損重建時，也可以較快完成同步再次上線。我們將會在往後的文章裡討論高可用性的設置。 
 
-基於在 [**Pyrmont 測試網路**](https://pyrmont.beaconcha.in/)上的試跑結果以及 [MicroK8s 官方文件](https://microk8s.io/docs)，以下是我們建議的最小系統需求。請注意，**最小系統需求並不保證最佳的系統表現及成本效益。**
+基於在 [**Prater 測試網路**](https://prater.beaconcha.in/)上的試跑結果以及 [MicroK8s 官方文件](https://microk8s.io/docs)，以下是我們建議的最小系統需求。請注意，**最小系統需求並不保證最佳的系統表現及成本效益。**
 
 Master 主要節點： 
 
@@ -415,7 +415,7 @@ sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
 
 我們知道要從零開始學習 Kubernetes 以及寫出建立資源的 YAML 文件不是一件簡單的事，所以我們開發了可用來建立 beacon 和 validator 用戶端的 YAML 檔和 Helm Chart，並上傳到 [eth2xk8s](https://github.com/lumostone/eth2xk8s) Github repository 來供大家使用。希望能幫助大家更容易上手！
 
-在這篇教學裡，我們用 Helm 來安裝與升級 beacon 及 validator 用戶端。你也可以不使用 Helm 直接使用 YAML 檔來建立 Kubernetes 資源。細節可以看這兩篇文章：「[使用 Kubernetes manifests 以及 hostPath 測試以太坊 2.0 Staking](https://github.com/lumostone/eth2xk8s/blob/master/host-path/README.md) 」以及「[使用 Kubernetes manifests 以及 NFS 測試以太坊 2.0 Staking](https://github.com/lumostone/eth2xk8s/blob/master/nfs/README.md)」。
+在這篇教學裡，我們用 Helm 來安裝與升級 beacon 及 validator 用戶端。你也可以不使用 Helm 直接使用 YAML 檔來建立 Kubernetes 資源。細節可以看這兩篇文章：「[使用 Kubernetes manifests、Prysm 以及 hostPath 測試以太坊 2.0 Staking](https://github.com/lumostone/eth2xk8s/blob/master/prysm/host-path/README.md) 」以及「[使用 Kubernetes manifests、Prysm 以及 NFS 測試以太坊 2.0 Staking](https://github.com/lumostone/eth2xk8s/blob/master/prysm/nfs/README.md)」。
 
 1. Clone [eth2xk8s](https://github.com/lumostone/eth2xk8s) Github 專案
 

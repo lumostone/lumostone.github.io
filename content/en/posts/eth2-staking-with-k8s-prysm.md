@@ -61,7 +61,7 @@ We all stake at our own risk. Please always do the experiments and dry-run on th
 
 We need at least 3 machines (virtual machines or bare-metal machines) in total for this setup. One machine will be the NFS server to store the staking data, the second machine will be the “master” node to run the Kubernetes core components, and finally, the third machine will be the “worker” node to run the workloads, which are the beacon and validators, in the Kubernetes cluster. For high availability (HA), you can consider adding more nodes by following [MicroK8s’ High Availability documentation](https://microk8s.io/docs/high-availability) and regularly backing up the beacon data for fast startup. We will discuss HA configurations in subsequent posts. 
 
-Here are the recommended system requirements based on our testing on the [**Pyrmont testnet**](https://pyrmont.beaconcha.in/) and [MicroK8s’ documentation](https://microk8s.io/docs). **Please note that meeting the minimal requirements does not guarantee optimal performance or cost efficiency.**
+Here are the recommended system requirements based on our testing on the [**Prater testnet**](https://prater.beaconcha.in/) and [MicroK8s’ documentation](https://microk8s.io/docs). **Please note that meeting the minimal requirements does not guarantee optimal performance or cost efficiency.**
 
 Master:
 
@@ -413,7 +413,7 @@ sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
 
 We understand it is not trivial to learn Kubernetes and create manifests or Helm Charts for staking from scratch, so we’ve already done this for you to help you bootstrap! We uploaded all the manifests in our Github repository [eth2xk8s](https://github.com/lumostone/eth2xk8s).
 
-We use Helm to manage packages and releases in this guide. You can also use Kubernetes manifests directly. Please see [Testing with manifests and hostPath](https://github.com/lumostone/eth2xk8s/blob/master/host-path/README.md) and [Testing with manifests and NFS](https://github.com/lumostone/eth2xk8s/blob/master/nfs/README.md) for details.
+We use Helm to manage packages and releases in this guide. You can also use Kubernetes manifests directly. Please see [Testing manifests with Prysm and hostPath](https://github.com/lumostone/eth2xk8s/blob/master/prysm/host-path/README.md) and [Testing manifests with Prysm and NFS](https://github.com/lumostone/eth2xk8s/blob/master/prysm/nfs/README.md) for details.
 
 1. Clone this repo.
 
@@ -541,7 +541,7 @@ Thank you for reading to the end of this guide! We hope this guide paves the way
 We would love to hear from you! Let us know what you think.
 
 - If you have any suggestions or questions regarding this guide, feel free to open issues or pull requests in our [website](https://github.com/lumostone/lumostone.github.io) repository.
-- If you would like to contribute to the Helm Chart, open issues or pull requests in [eth2xk8s](https://github.com/eth2xk8s/eth2xk8s) repository.
+- If you would like to contribute to the Helm Chart, open issues or pull requests in [eth2xk8s](https://github.com/lumostone/eth2xk8s) repository.
 
 ## Appendix
 
