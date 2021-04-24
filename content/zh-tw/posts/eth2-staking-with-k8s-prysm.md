@@ -423,7 +423,7 @@ sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
     git clone https://github.com/lumostone/eth2xk8s.git
     ```
 
-2. 更改 [./eth2prysm/values.yaml](https://github.com/lumostone/eth2xk8s/blob/master/eth2prysm/values.yaml) 的值
+2. 更改 [./prysm/helm/values.yaml](https://github.com/lumostone/eth2xk8s/blob/master/prysm/helm/values.yaml) 的值
 
     建議閱讀`values.yaml`的每個變數及說明，確認是否更改預設值。以下列出安裝 Helm Chart 前必須更改的變數：
     - **nfs.serverIp**: NFS 伺服器 IP 地址
@@ -453,7 +453,7 @@ Helm 使用 [releases](https://helm.sh/docs/glossary/#release) 來追蹤 chart �
 2. 安裝 Prysm 用戶端
 
     ```bash
-    microk8s helm3 install eth2xk8s ./eth2prysm -nprysm
+    microk8s helm3 install eth2xk8s ./prysm/helm -nprysm
     ```
 
 3. 檢查部署設定
@@ -501,7 +501,7 @@ Helm 使用 [releases](https://helm.sh/docs/glossary/#release) 來追蹤 chart �
 3. 執行以下 Helm 指令更新用戶端
 
     ```bash
-    microk8s helm3 upgrade eth2xk8s ./eth2prysm -nprysm
+    microk8s helm3 upgrade eth2xk8s ./prysm/helm -nprysm
     ```
 
 4. 檢查部署設定，確認用戶端已更新成新版本

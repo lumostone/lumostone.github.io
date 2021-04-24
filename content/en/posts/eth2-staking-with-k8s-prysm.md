@@ -421,7 +421,7 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
     git clone https://github.com/lumostone/eth2xk8s.git
     ```
 
-2. Change values in [./eth2prysm/values.yaml](https://github.com/lumostone/eth2xk8s/blob/master/eth2prysm/values.yaml).
+2. Change values in [./prysm/helm/values.yaml](https://github.com/lumostone/eth2xk8s/blob/master/prysm/helm/values.yaml).
 
     We recommend checking each field in `values.yaml` to determine the desired configuration. Fields that need to be changed or verified before installing the chart are the following ones:
     - **nfs.serverIp**: NFS server IP address.
@@ -451,7 +451,7 @@ On your master:
 2. Install the Prysm client.
 
     ```bash
-    microk8s helm3 install eth2xk8s ./eth2prysm -nprysm
+    microk8s helm3 install eth2xk8s ./prysm/helm -nprysm
     ```
 
 3. Check the configurations used.
@@ -499,7 +499,7 @@ Ethereum 2.0 client teams work hard to push new versions frequently. Ideally, we
 3. Upgrade the client with the Helm upgrade command.
 
     ```bash
-    microk8s helm3 upgrade eth2xk8s ./eth2prysm -nprysm
+    microk8s helm3 upgrade eth2xk8s ./prysm/helm -nprysm
     ```
 
 4. Check the configurations to see if it picks up the new version correctly.
