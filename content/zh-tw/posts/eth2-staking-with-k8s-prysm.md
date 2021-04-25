@@ -29,14 +29,14 @@ tags: ["以太坊", "kubernetes", "教學"]
 - [Helm 3](https://helm.sh/) Kubernetes 套件管理工具
 - [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) Kubernetes CLI 工具
 - Ubuntu Server 20.04.2 LTS (x64) （[下載連結](https://ubuntu.com/download/server)）
-- [Network File System (NFS)](https://en.wikipedia.org/wiki/Network_File_System) 作為 beacon 與 validator 的持久性儲存系統（[Ubuntu 文件與教學](https://ubuntu.com/server/docs/service-nfs)）
+- [Network File System (NFS)](https://en.wikipedia.org/wiki/Network_File_System) 作為 beacon 與 validator 用戶端的持久性儲存系統（[Ubuntu 文件與教學](https://ubuntu.com/server/docs/service-nfs)）
 - [eth2xk8s](https://github.com/lumostone/eth2xk8s) Helm Chart
 
 ## 本文目標
 
 這份教學包含以下內容：
 
-- 使用 MicroK8s 建立一個 Kubernetes 叢集。如果你有已建好的 Kubernetes 叢集，或想使用其他的  Kubernetes 發行版，可以在建好叢集後跳至「[安裝和設定NFS](#安裝和設定-nfs)」章節。如果你是使用雲端服務提供商所提供的 Kubernetes 托管服務（例如 AKS, EKS, GKE 等），你可以考慮直接使用雲端存儲服務（例如 Azure Disk, AWS S3 等）作為 beacon 與 validator 的持久性儲存系統，而非使用 NFS。我們未來會撰寫其他文章討論這個部分。
+- 使用 MicroK8s 建立一個 Kubernetes 叢集。如果你有已建好的 Kubernetes 叢集，或想使用其他的  Kubernetes 發行版，可以在建好叢集後跳至「[安裝和設定NFS](#安裝和設定-nfs)」章節。如果你是使用雲端服務提供商所提供的 Kubernetes 托管服務（例如 AKS, EKS, GKE 等），你可以考慮直接使用雲端存儲服務（例如 Azure Disk, AWS S3 等）作為 beacon 與 validator 用戶端的持久性儲存系統，而非使用 NFS。我們未來會撰寫其他文章討論這個部分。
 - 安裝和設定 NFS。
 - 準備用以安裝 Prysm 以太坊 2.0 用戶端的 Helm Chart。
 - 使用 Helm Chart 安裝 Prysm 以太坊 2.0 用戶端。
@@ -335,13 +335,13 @@ sudo reboot
     sudo systemctl start nfs-kernel-server.service
     ```
 
-2. 為 beacon、validator 及錢包建資料目錄
+2. 為 beacon、validator 用戶端及錢包建資料目錄
 
     ```bash
     sudo mkdir -p /data/prysm/beacon
 
-    sudo mkdir -p /data/prysm/validator-1 /data/prysm/wallet-1
-    sudo mkdir -p /data/prysm/validator-2 /data/prysm/wallet-2
+    sudo mkdir -p /data/prysm/validator-client-1 /data/prysm/wallet-1
+    sudo mkdir -p /data/prysm/validator-client-2 /data/prysm/wallet-2
     ```
 
     **請注意每一個錢包只能讓一個 validator 用戶端使用。** 你可以匯入多個 validator 金鑰到同一個錢包，並讓一個 validator 用戶端來為多個 validators 提交區塊驗證結果。
@@ -405,7 +405,7 @@ sudo reboot
 
 ### 改變資料目錄擁有者
 
-為了讓 Kubernetes 能夠替 beacon 及 validator 正確地掛載儲存空間，我們必須改變 NFS 上的資料目錄 owner：
+為了讓 Kubernetes 能夠替 beacon 及 validator 用戶端正確地掛載儲存空間，我們必須改變 NFS 上的資料目錄 owner：
 
 ```bash
 sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
@@ -432,9 +432,9 @@ sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
     - **image.version**: Prysm 用戶端版本
     - **beacon.dataVolumePath**: NFS 上的 beacon 資料目錄路徑
     - **beacon.web3Provider** 及 **beacon.fallbackWeb3Providers**: 以太坊 1.0 節點網址
-    - **validators.validator1.dataVolumePath**: NFS 上的 validator 資料目錄路徑
-    - **validators.validator1.walletVolumePath**: NFS 上的錢包資料目錄路徑
-    - **validators.validator1.walletPassword**: 錢包密碼
+    - **validatorClients.validatorClient1.dataVolumePath**: NFS 上的 validator 用戶端資料目錄路徑
+    - **validatorClients.validatorClient1.walletVolumePath**: NFS 上的錢包資料目錄路徑
+    - **validatorClients.validatorClient1.walletPassword**: 錢包密碼
 
 ### 使用 Helm Chart 安裝 Prysm
 
@@ -478,16 +478,16 @@ Helm 使用 [releases](https://helm.sh/docs/glossary/#release) 來追蹤 chart �
     microk8s kubectl logs -f -nprysm -l app=beacon
     ```
 
-3. 檢查 validator 的執行記錄
+3. 檢查 validator 用戶端的執行記錄
 
     ```bash
-    microk8s kubectl logs -f -nprysm -l app=validator1
+    microk8s kubectl logs -f -nprysm -l app=validator-client-1
     ```
 
-    如果想檢查其他的 validator，可以將`-l app=<validator name>`更改成在`values.yaml`設定的其他 validator 的名字，以 validator2 為例
+    如果想檢查其他的 validator用戶端，可以將`-l app=<validator client name>`更改成在`values.yaml`設定的其他 validator 用戶端的名字，以 validator-client-2 為例
 
     ```bash
-    microk8s kubectl logs -f -nprysm -l app=validator2
+    microk8s kubectl logs -f -nprysm -l app=validator-client-2
     ```
 
 ### 使用 Helm Chart 更新 Prysm 版本
@@ -554,11 +554,11 @@ Helm 使用 [releases](https://helm.sh/docs/glossary/#release) 來追蹤 chart �
     microk8s kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
     ```
 
-2. 接著可以執行`kubectl top`指令來得到用量資訊，下面兩個例子分別會得到 beacon 及 validator 的用量。
+2. 接著可以執行`kubectl top`指令來得到用量資訊，下面兩個例子分別會得到 beacon 及 validator 用戶端的用量。
 
     ```bash
     microk8s kubectl top pod -l app=beacon
-    microk8s kubectl top pod -l app=validator
+    microk8s kubectl top pod -l app=validator-client-1
     ```
 
 ### 解除安裝 Helm Chart
@@ -583,10 +583,10 @@ microk8s helm3 uninstall eth2xk8s -nprysm
     microk8s kubectl scale deployments/beacon -nprysm --replicas=0
     ```
 
-    如果 schema 變動只影響 validator 用戶端，我們可以只調整 validator：
+    如果 schema 變動只影響 validator，我們可以只調整 validator 用戶端：
 
     ```bash
-    microk8s kubectl scale deployments/validator1 -nprysm --replicas=0
+    microk8s kubectl scale deployments/validator-client-1 -nprysm --replicas=0
     ```
 
 2. 確認所有 pod 都已停止
@@ -603,11 +603,11 @@ microk8s helm3 uninstall eth2xk8s -nprysm
     microk8s helm3 rollback eth2xk8s 4 -nprysm
     ```
 
-5. 恢復 beacon 及 validator pod 的數量
+5. 恢復 beacon 及 validator 用戶端 pod 的數量
 
     ```bash
     microk8s kubectl scale deployments/beacon -nprysm --replicas=1
-    microk8s kubectl scale deployments/validator1 -nprysm --replicas=1
+    microk8s kubectl scale deployments/validator-client-1 -nprysm --replicas=1
     ```
 
 6. 確認所有 pod 都恢復執行

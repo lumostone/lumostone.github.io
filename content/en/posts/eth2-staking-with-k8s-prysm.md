@@ -21,14 +21,14 @@ We want to thank Ethereum Foundation for supporting this project via the [Eth2 S
 
 ## Technologies
 
-In this step-by-step guide, we run one beacon node with multiple validators in a Kuberenetes cluster for Ethereum 2.0 staking. We are using:
+In this step-by-step guide, we run one beacon node with multiple validator clients in a Kuberenetes cluster for Ethereum 2.0 staking. We are using:
 
 - [Prysm](https://github.com/prysmaticlabs/prysm) as the Ethereum 2.0 Client.
 - [MicroK8s](https://microk8s.io/) as the Kubernertes destribution ([installation guide](https://microk8s.io/docs)).
 - [Helm 3](https://helm.sh/) to manage packages and releases.
 - [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) to run commands against Kubernetes clusters.
 - Ubuntu Server 20.04.2 LTS (x64) ([download link](https://ubuntu.com/download/server)).
-- [Network File System (NFS)](https://en.wikipedia.org/wiki/Network_File_System) as beacon and validator’s persistent storage ([Guide for NFS installation and configuration on Ubuntu](https://ubuntu.com/server/docs/service-nfs)).
+- [Network File System (NFS)](https://en.wikipedia.org/wiki/Network_File_System) as beacon and validator clients’ persistent storage ([Guide for NFS installation and configuration on Ubuntu](https://ubuntu.com/server/docs/service-nfs)).
 - [eth2xk8s](https://github.com/lumostone/eth2xk8s) Helm Chart.
 
 ## Goal
@@ -37,7 +37,7 @@ This guide will help you to:
 
 - Create a Kubernetes cluster with MicroK8s. If you already have your prefered Kubernetes distribution running you can jump to the section “[Install and Configure NFS](#install-and-configure-nfs)”. If you are using managed Kubernetes services provided by cloud providers (*e.g.* AKS, EKS, and GKE), you may consider using cloud storage directly rather than NFS as the persistent storage. We will cover this topic in the future.
 - Install and configure NFS.
-- Prepare the Helm Chart for multiple validators.
+- Prepare the Helm Chart for multiple validator clients.
 - Install Prysm’s beacon and validator clients with the Helm Chart.
 - Check client status.
 - Upgrade and roll back the Prysm’s beacon and validator clients with the Helm Chart.
@@ -59,7 +59,7 @@ We all stake at our own risk. Please always do the experiments and dry-run on th
 
 ## System Requirements
 
-We need at least 3 machines (virtual machines or bare-metal machines) in total for this setup. One machine will be the NFS server to store the staking data, the second machine will be the “master” node to run the Kubernetes core components, and finally, the third machine will be the “worker” node to run the workloads, which are the beacon and validators, in the Kubernetes cluster. For high availability (HA), you can consider adding more nodes by following [MicroK8s’ High Availability documentation](https://microk8s.io/docs/high-availability) and regularly backing up the beacon data for fast startup. We will discuss HA configurations in subsequent posts. 
+We need at least 3 machines (virtual machines or bare-metal machines) in total for this setup. One machine will be the NFS server to store the staking data, the second machine will be the “master” node to run the Kubernetes core components, and finally, the third machine will be the “worker” node to run the workloads, which are the beacon and validator clients, in the Kubernetes cluster. For high availability (HA), you can consider adding more nodes by following [MicroK8s’ High Availability documentation](https://microk8s.io/docs/high-availability) and regularly backing up the beacon data for fast startup. We will discuss HA configurations in subsequent posts. 
 
 Here are the recommended system requirements based on our testing on the [**Prater testnet**](https://prater.beaconcha.in/) and [MicroK8s’ documentation](https://microk8s.io/docs). **Please note that meeting the minimal requirements does not guarantee optimal performance or cost efficiency.**
 
@@ -334,13 +334,13 @@ On the machine you plan to run NFS:
     sudo systemctl start nfs-kernel-server.service
     ```
 
-2. Create directories for the beacon node, validators, and wallets.
+2. Create directories for the beacon node, validator clients, and wallets.
 
     ```bash
     sudo mkdir -p /data/prysm/beacon
 
-    sudo mkdir -p /data/prysm/validator-1 /data/prysm/wallet-1
-    sudo mkdir -p /data/prysm/validator-2 /data/prysm/wallet-2
+    sudo mkdir -p /data/prysm/validator-client-1 /data/prysm/wallet-1
+    sudo mkdir -p /data/prysm/validator-client-2 /data/prysm/wallet-2
     ```
 
    **Please note that each wallet can only be used by a single validator client.** You can import multiple validator keys into the same wallet and use one validator client to attest/propose blocks for multiple validators. 
@@ -403,7 +403,7 @@ Let’s get back to the NFS server. Before proceeding, please have your validato
 
 ### Change the owner of the data folder
 
-On the NFS machine, let’s change the directory owners so later these directories can be mounted by Kubernetes as the storage volumes for the pods running the beacon node and the validator. 
+On the NFS machine, let’s change the directory owners so later these directories can be mounted by Kubernetes as the storage volumes for the pods running the beacon node and the validator clients. 
 
 ```bash
 sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
@@ -430,9 +430,9 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
     - **image.version**: Prysm client version.
     - **beacon.dataVolumePath**: The path to the data directory on the NFS for the beacon node.
     - **beacon.web3Provider** and **beacon.fallbackWeb3Providers**: Ethereum 1.0 node endpoints.
-    - **validators.validator1.dataVolumePath**: The path to the data directory on the NFS for the validator.
-    - **validators.validator1.walletVolumePath**: The path to the data directory on the NFS for the wallet.
-    - **validators.validator1.walletPassword**: The wallet password.
+    - **validatorClients.validatorClient1.dataVolumePath**: The path to the data directory on the NFS for the validator client.
+    - **validatorClients.validatorClient1.walletVolumePath**: The path to the data directory on the NFS for the wallet.
+    - **validatorClients.validatorClient1.walletPassword**: The wallet password.
 
 ### Install Prysm via Helm Chart
 
@@ -468,7 +468,7 @@ On your master:
     microk8s kubectl get pod -nprysm -w
     ```
 
-    This command will watch for changes. You can monitor it until the beacon node and validators are all in RUNNING status.
+    This command will watch for changes. You can monitor it until the beacon node and validator clients are all in RUNNING status.
 
 2. Check the log of the beacon node.
 
@@ -476,16 +476,16 @@ On your master:
     microk8s kubectl logs -f -nprysm -l app=beacon
     ```
 
-3. Check the log of the first validator.
+3. Check the log of the first validator client.
 
     ```bash
-    microk8s kubectl logs -f -nprysm -l app=validator1
+    microk8s kubectl logs -f -nprysm -l app=validator-client-1
     ```
 
-    To check other validators, change `-l app=<validator name>` to other validators’ names specified in `values.yaml`, *e.g.* for checking the second validator.
+    To check other validator clients, change `-l app=<validator client name>` to other validator clients’ names specified in `values.yaml`, *e.g.* for checking the second validator client.
 
     ```bash
-    microk8s kubectl logs -f -nprysm -l app=validator2
+    microk8s kubectl logs -f -nprysm -l app=validator-client-2
     ```
 
 ### Upgrade the Prysm Version with Helm Chart
@@ -559,7 +559,7 @@ You can use [metrics server](https://github.com/kubernetes-sigs/metrics-server) 
 
     ```bash
     microk8s kubectl top pod -l app=beacon
-    microk8s kubectl top pod -l app=validator
+    microk8s kubectl top pod -l app=validator-client-1
     ```
 
 ### Uninstall Helm Chart
@@ -582,10 +582,10 @@ Hence, we can take advantage of Kubernetes to help us temporarily scale down the
     microk8s kubectl scale deployments/beacon -nprysm --replicas=0
     ```
 
-    or scale down validator1 if the schema changes only affect validators
+    or scale down validator-client-1 if the schema changes only affect validators
 
     ```bash
-    microk8s kubectl scale deployments/validator1 -nprysm --replicas=0
+    microk8s kubectl scale deployments/validator-client-1 -nprysm --replicas=0
     ```
 
 2. Confirm that the pod(s) are terminated.
@@ -606,7 +606,7 @@ Hence, we can take advantage of Kubernetes to help us temporarily scale down the
 
     ```bash
     microk8s kubectl scale deployments/beacon -nprysm --replicas=1
-    microk8s kubectl scale deployments/validator1 -nprysm --replicas=1
+    microk8s kubectl scale deployments/validator-client-1 -nprysm --replicas=1
     ```
 
 6. Confirm that the pod(s) are running.
