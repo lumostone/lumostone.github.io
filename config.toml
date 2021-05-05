@@ -8,14 +8,17 @@ hasCJKLanguage = true
 
 googleAnalytics = "G-T9LBVECNMJ"
 
+
+ignoreFiles = ["content.*_.*"]    # Ignore md files with underscoe previx in the content folder.
+
 [languages]
   [languages.en]
-    contentDir = "content/en/posts"
+    contentDir = "content/en"
     title = "lumostone"
     languageName = "English"
     weight = 1
   [languages.zh-tw]
-    contentDir = "content/zh-tw/posts"
+    contentDir = "content/zh-tw"
     title = "lumostone"
     languageName = "繁體中文"
     weight = 2
