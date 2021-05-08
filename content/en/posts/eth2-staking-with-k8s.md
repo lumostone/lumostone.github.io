@@ -1,9 +1,11 @@
 ---
-title: "Guide to Ethereum 2.0 Staking with Kubernetes and Prysm"
+title: "Guide to Ethereum 2.0 Staking with Kubernetes"
 date: 2021-04-19T23:53:09Z
-draft: false
+draft: true
 tags: ["ethereum", "kubernetes", "tutorial"]
 ---
+
+{{< content-toggle toggleTotal="4" toggle1="Prysm" toggle2="Lighthouse" toggle3="Teku" toggle4="Nimbus" >}}
 
 ## Why Stake with Kubernetes? 
 As stakers, we all want to minimize downtime and the risk of being slashed. 
