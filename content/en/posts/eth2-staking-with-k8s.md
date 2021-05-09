@@ -115,8 +115,8 @@ NFS:
 
 ## Prerequisites
 
-- You have funded your validators and have generated validator keys. If you need guidance, we recommend [Somer Esat’s guide](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-prysm-a10b5129c7e3).
-- Ethereum 1.0 “Goerli” node: [Somer Esat’s guide](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-prysm-a10b5129c7e3) also covers steps for building the Ethereum 1.0 node. You can also choose a third-party provider such as [Infura](https://infura.io/) or [Alchemy](https://alchemyapi.io/).
+- You have funded your validators and have generated validator keys. If you need guidance, we recommend [Somer Esat’s guide](https://medium.com/search?q=someresat%20Guide%20to%20Staking).
+- Ethereum 1.0 “Goerli” node: [Somer Esat’s guide](https://medium.com/search?q=someresat%20Guide%20to%20Staking) also covers steps for building the Ethereum 1.0 node. You can also choose a third-party provider such as [Infura](https://infura.io/) or [Alchemy](https://alchemyapi.io/).
 - Planning your private network, firewall, and port forwarding. We have put our network configuration in the [Walkthrough](#overview) for your reference.
 - You have installed Ubuntu Server 20.04.2 LTS (x64) on all the servers and have assigned static IPs.
 
@@ -572,7 +572,7 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
     - **nfs.serverIp**: NFS server IP address.
     - **securityContext.runAsUser**: The user ID will be used to run all processes in the container. The user should have the access to the mounted NFS volume.
     - **securityContext.runAsGroup**: The group ID will be used to run all processes in the container. The group should have the access to the mounted NFS volume. We use the group ID to grant limited file access to the processes so it won't use the root group directly.
-    - **image.version**: Prysm client version.
+    - **image.versionTag**: Prysm client version.
     - **beacon.dataVolumePath**: The path to the data directory on the NFS for the beacon node.
     - **beacon.web3Provider** and **beacon.fallbackWeb3Providers**: Ethereum 1.0 node endpoints.
     - **validatorClients.validatorClient1**
@@ -589,7 +589,7 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
     - **nfs.serverIp**: NFS server IP address.
     - **securityContext.runAsUser**: The user ID will be used to run all processes in the container. The user should have the access to the mounted NFS volume.
     - **securityContext.runAsGroup**: The group ID will be used to run all processes in the container. The group should have the access to the mounted NFS volume. We use the group ID to grant limited file access to the processes so it won't use the root group directly.
-    - **image.version**: Lighthouse client version.
+    - **image.versionTag**: Lighthouse client version.
     - **beacon.dataVolumePath**: The path to the data directory on the NFS for the beacon node.
     - **beacon.eth1Endpoints**: Ethereum 1.0 node endpoints.
     - **validatorClients.validatorClient1.dataVolumePath**: The path to the data directory on the NFS for the validator client.
@@ -603,7 +603,7 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
     - **nfs.serverIp**: NFS server IP address.
     - **securityContext.runAsUser**: The user ID will be used to run all processes in the container. The user should have the access to the mounted NFS volume.
     - **securityContext.runAsGroup**: The group ID will be used to run all processes in the container. The group should have the access to the mounted NFS volume. We use the group ID to grant limited file access to the processes so it won't use the root group directly.
-    - **image.version**: Teku client version.
+    - **image.versionTag**: Teku client version.
     - **beacon.dataVolumePath**: The path to the data directory on the NFS for the beacon node.
     - **beacon.eth1Endpoint**: Ethereum 1.0 node endpoint.
     - **validatorClients.validatorClient1**
@@ -631,9 +631,7 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
 
 ### Install Ethereum 2.0 Client via Helm Chart
 
-Helm uses [releases](https://helm.sh/docs/glossary/#release) to track each of the chart installations. In this guide, we specify our release name as `eth2xk8s`, you can change it to anything you prefer.
-
-Kubernetes has the concept of [namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) to define scopes for names and isolate accesses between resources.
+Helm uses [releases](https://helm.sh/docs/glossary/#release) to track each of the chart installations. In this guide, we specify our release name as `eth2xk8s`, you can change it to anything you prefer. We'll install the Helm Chart in a [namespace](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/), which defines scopes for names and isolates accesses between resources.
 
 {{< toggle-panel name="Prysm" num="1" >}}
 We use `prysm` as the namespace for the Prysm client.
@@ -853,7 +851,7 @@ Ethereum 2.0 client teams work hard to push new versions frequently. Ideally, we
 
 1. Check [Prysm Github release page](https://github.com/prysmaticlabs/prysm/releases) to get the latest release version.
 
-2. Modify the `image.version` in `values.yaml` to the latest version, *e.g.* `v1.3.4`, and save the change in `values.yaml`.
+2. Modify the `image.versionTag` in `values.yaml` to the latest version, *e.g.* `v1.3.4`, and save the change in `values.yaml`.
 
 3. Upgrade the client with the Helm upgrade command.
 
@@ -872,7 +870,7 @@ Ethereum 2.0 client teams work hard to push new versions frequently. Ideally, we
 
 1. Check [Lighthouse Github release page](https://github.com/sigp/lighthouse/releases) to get the latest release version.
 
-2. Modify the `image.version` in `values.yaml` to the latest version, *e.g.* `v1.3.0`, and save the change in `values.yaml`.
+2. Modify the `image.versionTag` in `values.yaml` to the latest version, *e.g.* `v1.3.0`, and save the change in `values.yaml`.
 
 3. Upgrade the client with the Helm upgrade command.
 
@@ -891,7 +889,7 @@ Ethereum 2.0 client teams work hard to push new versions frequently. Ideally, we
 
 1. Check [Teku Github release page](https://github.com/ConsenSys/teku/releases) to get the latest release version.
 
-2. Modify the `image.version` in `values.yaml` to the latest version, *e.g.* `21.4.1`, and save the change in `values.yaml`.
+2. Modify the `image.versionTag` in `values.yaml` to the latest version, *e.g.* `21.4.1`, and save the change in `values.yaml`.
 
 3. Upgrade the client with the Helm upgrade command.
 
@@ -930,7 +928,7 @@ Ethereum 2.0 client teams work hard to push new versions frequently. Ideally, we
 
 ### Roll Back the Release with Helm
 
-Rolling back with Helm is usually as straightforward as upgrading when there’s no database schema changes involved. You can follow the steps below:
+Rolling back with Helm is usually as straightforward as upgrading when there’s no database schema changes involved. If the rollback involves schema changes, please refer to [Appendix: Roll Back the Release with Helm (Schema Changes)](#roll-back-the-release-with-helm-schema-changes) for details. Otherwise, you can follow the steps below:
 
 {{< toggle-panel name="Prysm" num="1" >}}
 
@@ -947,8 +945,6 @@ Rolling back with Helm is usually as straightforward as upgrading when there’s
     ```
 
 3. Check the configurations used and refer to the [Check Client Status](#check-client-status) section to verify the client is running without issues.
-
-If the rollback involves schema changes, please refer to [Appendix: Roll Back the Release with Helm (Schema Changes)](#roll-back-the-release-with-helm-schema-changes) for details.
 
 Sometimes, it’s not possible to downgrade to previous versions like described [here](https://docs.prylabs.network/docs/prysm-usage/staying-up-to-date/#downgrading-between-major-version-bumps). Please refer to the client team’s documentations for details before you downgrade the client.
 
@@ -969,6 +965,8 @@ Sometimes, it’s not possible to downgrade to previous versions like described 
 
 3. Check the configurations used and refer to the [Check Client Status](#check-client-status) section to verify the client is running without issues.
 
+Sometimes, it’s not possible to downgrade to previous versions. Please refer to the client team’s documentations for details before you downgrade the client.
+
 {{< /toggle-panel >}}
 {{< toggle-panel name="Teku" >}}
 
@@ -986,6 +984,8 @@ Sometimes, it’s not possible to downgrade to previous versions like described 
 
 3. Check the configurations used and refer to the [Check Client Status](#check-client-status) section to verify the client is running without issues.
 
+Sometimes, it’s not possible to downgrade to previous versions. Please refer to the client team’s documentations for details before you downgrade the client.
+
 {{< /toggle-panel >}}
 {{< toggle-panel name="Nimbus" >}}
 
@@ -1002,6 +1002,8 @@ Sometimes, it’s not possible to downgrade to previous versions like described 
     ```
 
 3. Check the configurations used and refer to the [Check Client Status](#check-client-status) section to verify the client is running without issues.
+
+Sometimes, it’s not possible to downgrade to previous versions. Please refer to the client team’s documentations for details before you downgrade the client.
 
 {{< /toggle-panel >}}
 
@@ -1143,8 +1145,133 @@ Hence, we can take advantage of Kubernetes to help us temporarily scale down the
 
 {{< /toggle-panel >}}
 {{< toggle-panel name="Lighthouse" >}}
+
+If you decide to downgrade the client version but there's schema change due to version upgrade, you might be able to use tools provided by the client team to reserve the database migration. If we use instructions in [Roll Back the Release with Helm](#roll-back-the-release-with-helm) directly, the pods will restart right after the version is changed by Helm and the client might not run due to the unmatched schema.
+
+Hence, we can take advantage of Kubernetes to help us temporarily scale down the pods and then to run the reverse migration tool (if any) before rolling back.
+
+1. Before rolling back the release, scale down the target deployment, *e.g*. scale down beacon node
+
+    ```bash
+    microk8s kubectl scale deployments/beacon -nlighthouse --replicas=0
+    ```
+
+    or scale down validator-client-1 if the schema changes only affect validators
+
+    ```bash
+    microk8s kubectl scale deployments/validator-client-1 -nlighthouse --replicas=0
+    ```
+
+2. Confirm that the pod(s) are terminated.
+
+    ```bash
+    microk8s kubectl get pod -nlighthouse -w
+    ```
+
+3. Reverse database migration.
+
+4. Roll back the release to revision 4
+
+    ```bash
+    microk8s helm3 rollback eth2xk8s 4 -nlighthouse
+    ```
+
+5. Scale up the deployment.
+
+    ```bash
+    microk8s kubectl scale deployments/beacon -nlighthouse --replicas=1
+    microk8s kubectl scale deployments/validator-client-1 -nlighthouse --replicas=1
+    ```
+
+6. Confirm that the pod(s) are running.
+
+    ```bash
+    microk8s kubectl get pod -nlighthouse -w
+    ```
+
 {{< /toggle-panel >}}
 {{< toggle-panel name="Teku" >}}
+
+If you decide to downgrade the client version but there's schema change due to version upgrade, you might be able to use tools provided by the client team to reserve the database migration. If we use instructions in [Roll Back the Release with Helm](#roll-back-the-release-with-helm) directly, the pods will restart right after the version is changed by Helm and the client might not run due to the unmatched schema.
+
+Hence, we can take advantage of Kubernetes to help us temporarily scale down the pods and then to run the reverse migration tool (if any) before rolling back.
+
+1. Before rolling back the release, scale down the target deployment, *e.g*. scale down beacon node
+
+    ```bash
+    microk8s kubectl scale deployments/beacon -nteku --replicas=0
+    ```
+
+    or scale down validator-client-1 if the schema changes only affect validators
+
+    ```bash
+    microk8s kubectl scale deployments/validator-client-1 -nteku --replicas=0
+    ```
+
+2. Confirm that the pod(s) are terminated.
+
+    ```bash
+    microk8s kubectl get pod -nteku -w
+    ```
+
+3. Reverse database migration.
+
+4. Roll back the release to revision 4
+
+    ```bash
+    microk8s helm3 rollback eth2xk8s 4 -nteku
+    ```
+
+5. Scale up the deployment.
+
+    ```bash
+    microk8s kubectl scale deployments/beacon -nteku --replicas=1
+    microk8s kubectl scale deployments/validator-client-1 -nteku --replicas=1
+    ```
+
+6. Confirm that the pod(s) are running.
+
+    ```bash
+    microk8s kubectl get pod -nteku -w
+    ```
+
 {{< /toggle-panel >}}
 {{< toggle-panel name="Nimbus" >}}
+
+If you decide to downgrade the client version but there's schema change due to version upgrade, you might be able to use tools provided by the client team to reserve the database migration. If we use instructions in [Roll Back the Release with Helm](#roll-back-the-release-with-helm) directly, the pods will restart right after the version is changed by Helm and the client might not run due to the unmatched schema.
+
+Hence, we can take advantage of Kubernetes to help us temporarily scale down the pods and then to run the reverse migration tool (if any) before rolling back.
+
+1. Before rolling back the release, scale down the target deployment, *e.g*. scale down beacon node
+
+    ```bash
+    microk8s kubectl scale deployments/nimbus-1 -nnimbus --replicas=0
+    ```
+
+2. Confirm that the pod(s) are terminated.
+
+    ```bash
+    microk8s kubectl get pod -nnimbus -w
+    ```
+
+3. Reverse database migration.
+
+4. Roll back the release to revision 4
+
+    ```bash
+    microk8s helm3 rollback eth2xk8s 4 -nnimbus
+    ```
+
+5. Scale up the deployment.
+
+    ```bash
+    microk8s kubectl scale deployments/nimbus-1 -nnimbus --replicas=1
+    ```
+
+6. Confirm that the pod(s) are running.
+
+    ```bash
+    microk8s kubectl get pod -nnimbus -w
+    ```
+
 {{< /toggle-panel >}}
