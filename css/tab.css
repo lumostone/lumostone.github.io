@@ -1,0 +1,44 @@
+.nav-tabs ul, .content-toggle ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+}
+
+.nav-tabs li, .content-toggle li {
+    border: solid #8cbdc1;
+    border-width: 0.5px 0.5px 0px 0px;
+}
+
+.content-toggle li {
+    border-bottom-width: 0.5px;
+}
+
+.nav-tabs li:first-child, .content-toggle li:first-child {
+    border-left-width: 0.5px;
+}
+
+.nav-tabs .nav-item, .content-toggle .toggle-item {
+    border: none;
+    background-color: white;
+    color: #5ba1a7;
+    padding: 12px 18px;
+}
+
+.nav-tabs .active, .content-toggle .active {
+    background-color: #eef5f6;
+}
+
+.tab-content .tab-pane, .toggle-panel .toggle-pane {
+    display: none;
+}
+
+.tab-content .active, .toggle-panel .active {
+    display: block;
+}
+
+.tab-pane {
+    border: 1px solid #8cbdc1;
+    padding: 12px 18px;
+}
