@@ -481,7 +481,7 @@ On the machine you plan to run NFS:
     sudo apt install nfs-common
     ```
 
-### Prepare Validator Wallets
+### Import Validator Keys
 
 Let’s get back to the NFS server to import the validator keys created with [eth2.0-deposit-cli](https://github.com/ethereum/eth2.0-deposit-cli). Before proceeding, please have your validator keys placed on your NFS machine.
 {{< toggle-panel name="Prysm" active=true >}}

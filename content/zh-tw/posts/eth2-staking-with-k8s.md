@@ -386,7 +386,7 @@ sudo reboot
     sudo apt install nfs-common
     ```
 
-### 準備 Validator 錢包
+### 匯入 Validator 金鑰
 
 你可以直接參考 [Prysm 官方文件](https://docs.prylabs.network/docs/mainnet/joining-eth2/#step-4-import-your-validator-accounts-into-prysm)，或參考以下步驟來完成錢包設定：
 
