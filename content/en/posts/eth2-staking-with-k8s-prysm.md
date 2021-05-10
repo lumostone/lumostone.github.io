@@ -413,7 +413,7 @@ sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
 
 We understand it is not trivial to learn Kubernetes and create manifests or Helm Charts for staking from scratch, so we’ve already done this for you to help you bootstrap! We uploaded all the manifests in our Github repository [eth2xk8s](https://github.com/lumostone/eth2xk8s).
 
-We use Helm to manage packages and releases in this guide. You can also use Kubernetes manifests directly. Please see [Testing manifests with hostPath](https://github.com/lumostone/eth2xk8s/blob/master/README_hostpath.md) and [Testing manifests with NFS](https://github.com/lumostone/eth2xk8s/blob/master/README_nfs.md) for details.
+We use Helm to manage packages and releases in this guide. You can also use Kubernetes manifests directly. Please see [Testing manifests with hostPath](https://github.com/lumostone/eth2xk8s/blob/master/testing-with-host-path.md) and [Testing manifests with NFS](https://github.com/lumostone/eth2xk8s/blob/master/testing-with-nfs.md) for details.
 
 1. Clone this repo.
 
