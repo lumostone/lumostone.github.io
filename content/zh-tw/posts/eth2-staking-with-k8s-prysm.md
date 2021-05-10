@@ -415,7 +415,7 @@ sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
 
 我們知道要從零開始學習 Kubernetes 以及寫出建立資源的 YAML 文件不是一件簡單的事，所以我們開發了可用來建立 beacon 和 validator 用戶端的 YAML 檔和 Helm Chart，並上傳到 [eth2xk8s](https://github.com/lumostone/eth2xk8s) Github repository 來供大家使用。希望能幫助大家更容易上手！
 
-在這篇教學裡，我們用 Helm 來安裝與升級 beacon 及 validator 用戶端。你也可以不使用 Helm 直接使用 YAML 檔來建立 Kubernetes 資源。細節可以看這兩篇文章：「[使用 Kubernetes manifests、Prysm 以及 hostPath 測試以太坊 2.0 Staking](https://github.com/lumostone/eth2xk8s/blob/master/prysm/host-path/README.md) 」以及「[使用 Kubernetes manifests、Prysm 以及 NFS 測試以太坊 2.0 Staking](https://github.com/lumostone/eth2xk8s/blob/master/prysm/nfs/README.md)」。
+在這篇教學裡，我們用 Helm 來安裝與升級 beacon 及 validator 用戶端。你也可以不使用 Helm 直接使用 YAML 檔來建立 Kubernetes 資源。細節可以看這兩篇文章：「[使用 Kubernetes manifests 以及 hostPath 測試以太坊 2.0 Staking](https://github.com/lumostone/eth2xk8s/blob/master/testing-with-host-path.md) 」以及「[使用 Kubernetes manifests 以及 NFS 測試以太坊 2.0 Staking](https://github.com/lumostone/eth2xk8s/blob/master/testing-with-nfs.md)」。
 
 1. Clone [eth2xk8s](https://github.com/lumostone/eth2xk8s) Github 專案
 
@@ -423,7 +423,7 @@ sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
     git clone https://github.com/lumostone/eth2xk8s.git
     ```
 
-2. 更改 [./prysm/helm/values.yaml](https://github.com/lumostone/eth2xk8s/blob/master/prysm/helm/values.yaml) 的值
+2. 更改 [prysm/helm/values.yaml](https://github.com/lumostone/eth2xk8s/blob/master/prysm/helm/values.yaml) 的值
 
     建議閱讀`values.yaml`的每個變數及說明，確認是否更改預設值。以下列出安裝 Helm Chart 前必須更改的變數：
     - **nfs.serverIp**: NFS 伺服器 IP 地址
