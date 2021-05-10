@@ -3,9 +3,11 @@ title: "當以太幣質押挖礦機遇見 Kubernetes－架設教學"
 date: 2021-04-19T23:53:09Z
 draft: true
 tags: ["以太坊", "kubernetes", "教學"]
+aliases:
+    - /zh-tw/eth2-staking-with-k8s-prysm/
 ---
 
-{{< content-toggle toggleTotal="4" toggle1="Prysm" toggle2="Lighthouse" toggle3="Teku" toggle4="Nimbus" >}}
+{{< content-toggle toggleTotal="4" toggle1="Prysm" toggle2="Lighthouse" toggle3="Teku" toggle4="Nimbus" active="toggle1" >}}
 
 ## 為什麼使用 Kubernetes 作 staking？
 作為 staker，我們常擔憂 validator 是否會突然停機，或是被區塊鏈上其他節點認作是壞成員而遭到驅逐（slashing）。如何最小化停機時間和降低被驅逐的風險，成為了一個 staker 時常考慮的問題。

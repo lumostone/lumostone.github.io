@@ -11,12 +11,12 @@ enableRobotsTXT = true
 
 [languages]
   [languages.en]
-    contentDir = "content/en/posts"
+    contentDir = "content/en"
     title = "lumostone"
     languageName = "English"
     weight = 1
   [languages.zh-tw]
-    contentDir = "content/zh-tw/posts"
+    contentDir = "content/zh-tw"
     title = "lumostone"
     languageName = "繁體中文"
     weight = 2

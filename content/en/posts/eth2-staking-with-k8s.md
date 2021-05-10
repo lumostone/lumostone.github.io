@@ -3,11 +3,13 @@ title: "Guide to Ethereum 2.0 Staking with Kubernetes"
 date: 2021-05-07T23:53:09Z
 draft: true
 tags: ["ethereum", "kubernetes", "tutorial"]
+aliases: 
+    - /en/eth2-staking-with-k8s-prysm/
 ---
 
 > On May 10, 2020, this guide has been updated to include Lighthouse, Teku and Nimbus clients along with Prysm, the Ethereum 2.0 client we started with.
 
-{{< content-toggle toggleTotal="4" toggle1="Prysm" toggle2="Lighthouse" toggle3="Teku" toggle4="Nimbus" >}}
+{{< content-toggle toggleTotal="4" toggle1="Prysm" toggle2="Lighthouse" toggle3="Teku" toggle4="Nimbus" active="toggle1" >}}
 
 ## Why Stake with Kubernetes?
 
@@ -29,7 +31,7 @@ We want to thank Ethereum Foundation for supporting this project via the [Eth2 S
 
 In this step-by-step guide, we run one beacon node with multiple validator clients in a Kuberenetes cluster for Ethereum 2.0 staking. We are using:
 
-- {{< toggle-panel name="Prysm" num="1" >}}
+- {{< toggle-panel name="Prysm" active=true >}}
 
 [Prysm](https://github.com/prysmaticlabs/prysm) as the Ethereum 2.0 Client.
 
@@ -253,7 +255,7 @@ Perform step 1-3 on all the machines:
     ```
 
 6. On the master and worker machines, add the rules for beacon node:
-{{< toggle-panel name="Prysm" num="1" >}}
+{{< toggle-panel name="Prysm" active=true >}}
 
 ```bash
 sudo ufw allow 12000/udp
@@ -383,7 +385,7 @@ On the machine you plan to run NFS:
     sudo systemctl start nfs-kernel-server.service
     ```
 
-{{< toggle-panel name="Prysm" num="1" >}}
+{{< toggle-panel name="Prysm" active=true >}}
 
 2. Create directories for the beacon node, validator clients, and wallets.
 
@@ -482,7 +484,7 @@ On the machine you plan to run NFS:
 ### Prepare Validator Wallets
 
 Let’s get back to the NFS server to import the validator keys created with [eth2.0-deposit-cli](https://github.com/ethereum/eth2.0-deposit-cli). Before proceeding, please have your validator keys placed on your NFS machine.
-{{< toggle-panel name="Prysm" num="1" >}}
+{{< toggle-panel name="Prysm" active=true >}}
 
 Please refer to [Prysm’s documentation](https://docs.prylabs.network/docs/mainnet/joining-eth2/#step-4-import-your-validator-accounts-into-prysm) about how to import your validator accounts into Prysm.
 
@@ -564,7 +566,7 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
     git clone https://github.com/lumostone/eth2xk8s.git
     ```
 
-{{< toggle-panel name="Prysm" num="1" >}}
+{{< toggle-panel name="Prysm" active=true >}}
 
 2. Change values in [prysm/helm/values.yaml](https://github.com/lumostone/eth2xk8s/blob/master/prysm/helm/values.yaml).
 
@@ -633,7 +635,7 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
 
 Helm uses [releases](https://helm.sh/docs/glossary/#release) to track each of the chart installations. In this guide, we specify our release name as `eth2xk8s`, you can change it to anything you prefer. We'll install the Helm Chart in a [namespace](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/), which defines scopes for names and isolates accesses between resources.
 
-{{< toggle-panel name="Prysm" num="1" >}}
+{{< toggle-panel name="Prysm" active=true >}}
 We use `prysm` as the namespace for the Prysm client.
 
 On your master:
@@ -732,7 +734,7 @@ On your master:
 
 ### Check Client Status
 
-{{< toggle-panel name="Prysm" num="1" >}}
+{{< toggle-panel name="Prysm" active=true >}}
 
 1. Check the deployment status.
 
@@ -847,7 +849,7 @@ On your master:
 
 Ethereum 2.0 client teams work hard to push new versions frequently. Ideally, we should try to keep up with the new releases to get the up-to-date patches and features! We suggest using Helm for upgrading to leverage its releases and lifecycle management:
 
-{{< toggle-panel name="Prysm" num="1" >}}
+{{< toggle-panel name="Prysm" active=true >}}
 
 1. Check [Prysm Github release page](https://github.com/prysmaticlabs/prysm/releases) to get the latest release version.
 
@@ -930,7 +932,7 @@ Ethereum 2.0 client teams work hard to push new versions frequently. Ideally, we
 
 Rolling back with Helm is usually as straightforward as upgrading when there’s no database schema changes involved. If the rollback involves schema changes, please refer to [Appendix: Roll Back the Release with Helm (Schema Changes)](#roll-back-the-release-with-helm-schema-changes) for details. Otherwise, you can follow the steps below:
 
-{{< toggle-panel name="Prysm" num="1" >}}
+{{< toggle-panel name="Prysm" active=true >}}
 
 1. Check Helm release history and find a “good” release. Note the target revision number.
 
@@ -1031,7 +1033,7 @@ You can use [metrics server](https://github.com/kubernetes-sigs/metrics-server) 
     ```
 
 2. Run the `kubectl top` command, for example:
-{{< toggle-panel name="Prysm" num="1" >}}
+{{< toggle-panel name="Prysm" active=true >}}
 
 ```bash
 microk8s kubectl top pod -l app=beacon
@@ -1067,7 +1069,7 @@ microk8s kubectl top pod -l app=nimbus-1
 
 If you want to stop and uninstall the Ethereum 2.0 client, you can uninstall the Helm Chart with the following command:
 
-{{< toggle-panel name="Prysm" num="1" >}}
+{{< toggle-panel name="Prysm" active=true >}}
 
 ```bash
 microk8s helm3 uninstall eth2xk8s -nprysm
@@ -1098,7 +1100,7 @@ microk8s helm3 uninstall eth2xk8s -nnimbus
 
 ### Roll Back the Release with Helm (Schema Changes)
 
-{{< toggle-panel name="Prysm" num="1" >}}
+{{< toggle-panel name="Prysm" active=true >}}
 
 Take [Prysm v1.3.0 release](https://github.com/prysmaticlabs/prysm/releases/tag/v1.3.0) as an example. If you decide to roll back to v1.2.x after upgrading to v1.3.0, you’ll need to run a script first to reverse the database migration. If we use instructions in [Roll Back the Release with Helm](#roll-back-the-release-with-helm) directly, the pods will restart right after the version is changed by Helm and the client might not run due to the unmatched schema.
 
