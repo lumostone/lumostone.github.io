@@ -616,7 +616,7 @@ sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
 
 {{< /toggle-panel >}}
 
-### 使用 Helm Chart 安裝 Prysm
+### 使用 Helm Chart 安裝以太坊 2.0 用戶端
 
 Helm 使用 [releases](https://helm.sh/docs/glossary/#release) 來追蹤 chart 的安裝紀錄。在這篇教學裡，我們用`eth2xk8s`當作我們的 release 名字，你也可以改成其他你想要的名字。我們會在安裝 Helm Chart 時指定要安裝在什麼 [namespace](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) 內（Kubernetes 使用 namespace 來區隔資源及限制存取）。
 
@@ -830,7 +830,7 @@ Helm 使用 [releases](https://helm.sh/docs/glossary/#release) 來追蹤 chart �
 
 {{< /toggle-panel >}}
 
-### 使用 Helm Chart 更新 Prysm 版本
+### 使用 Helm Chart 更新以太坊 2.0 用戶端版本
 
 以太坊 2.0 用戶端的新版本推出速度很快，我們應該盡快更新用戶端版本來獲得最新的 bug fixes 和功能。為了簡化版本跟軟體部署的管理，我們推薦用 Helm 來更新版本：
 
