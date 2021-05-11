@@ -27,7 +27,7 @@ We want to thank Ethereum Foundation for supporting this project via the [Eth2 S
 
 ## Technologies
 
-In this step-by-step guide, we run one beacon node with multiple validator clients in a Kuberenetes cluster for Ethereum 2.0 staking. We are using:
+In this step-by-step guide, we run multiple Ethereum 2.0 clients in a Kuberenetes cluster for staking. We are using:
 
 - Ethereum 2.0 Client ([Prysm](https://github.com/prysmaticlabs/prysm), [Lighthouse](https://github.com/sigp/lighthouse), [Teku](https://github.com/ConsenSys/teku) or [Nimbus](https://github.com/status-im/nimbus-eth2))
 - [MicroK8s](https://microk8s.io/) as the Kubernertes destribution ([installation guide](https://microk8s.io/docs)).

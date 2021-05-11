@@ -27,7 +27,7 @@ aliases:
 
 ## 使用工具
 
-這份教學將示範如何在一個 Kubernetes 叢集上維運一個以太坊 2.0 beacon 用戶端和多個 validator 用戶端， 以下是我們使用的工具：
+這份教學將示範如何在一個 Kubernetes 叢集上維運多個以太坊 2.0 用戶端， 以下是我們使用的工具：
 
 - 以太坊 2.0 用戶端 ([Prysm](https://github.com/prysmaticlabs/prysm), [Lighthouse](https://github.com/sigp/lighthouse), [Teku](https://github.com/ConsenSys/teku) 或是 [Nimbus](https://github.com/status-im/nimbus-eth2))
 - [MicroK8s](https://microk8s.io/) 輕量的 Kubernertes 發行版（[安裝教學](https://microk8s.io/docs)）
