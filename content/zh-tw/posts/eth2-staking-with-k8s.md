@@ -1,6 +1,6 @@
 ---
 title: "當以太幣質押挖礦機遇見 Kubernetes－架設教學"
-date: 2021-04-19T23:53:09Z
+date: 2021-05-07T23:53:09Z
 draft: true
 tags: ["以太坊", "kubernetes", "教學"]
 aliases:
@@ -29,26 +29,7 @@ aliases:
 
 這份教學將示範如何在一個 Kubernetes 叢集上維運一個以太坊 2.0 beacon 用戶端和多個 validator 用戶端， 以下是我們使用的工具：
 
-- {{< toggle-panel name="Prysm" active=true >}}
-
-[Prysm](https://github.com/prysmaticlabs/prysm) 以太坊 2.0 用戶端
-
-{{< /toggle-panel >}}
-{{< toggle-panel name="Lighthouse" >}}
-
-[Lighthouse](https://github.com/sigp/lighthouse) 以太坊 2.0 用戶端
-
-{{< /toggle-panel >}}
-{{< toggle-panel name="Teku" >}}
-
-[Teku](https://github.com/ConsenSys/teku) 以太坊 2.0 用戶端
-
-{{< /toggle-panel >}}
-{{< toggle-panel name="Nimbus" >}}
-
-[Nimbus](https://github.com/status-im/nimbus-eth2) 以太坊 2.0 用戶端
-
-{{< /toggle-panel >}}
+- 以太坊 2.0 用戶端 ([Prysm](https://github.com/prysmaticlabs/prysm), [Lighthouse](https://github.com/sigp/lighthouse), [Teku](https://github.com/ConsenSys/teku) 或是 [Nimbus](https://github.com/status-im/nimbus-eth2))
 - [MicroK8s](https://microk8s.io/) 輕量的 Kubernertes 發行版（[安裝教學](https://microk8s.io/docs)）
 - [Helm 3](https://helm.sh/) Kubernetes 套件管理工具
 - [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) Kubernetes CLI 工具

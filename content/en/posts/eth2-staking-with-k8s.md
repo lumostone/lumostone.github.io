@@ -29,26 +29,7 @@ We want to thank Ethereum Foundation for supporting this project via the [Eth2 S
 
 In this step-by-step guide, we run one beacon node with multiple validator clients in a Kuberenetes cluster for Ethereum 2.0 staking. We are using:
 
-- {{< toggle-panel name="Prysm" active=true >}}
-
-[Prysm](https://github.com/prysmaticlabs/prysm) as the Ethereum 2.0 Client.
-
-{{< /toggle-panel >}}
-{{< toggle-panel name="Lighthouse" >}}
-
-[Lighthouse](https://github.com/sigp/lighthouse) as the Ethereum 2.0 Client.
-
-{{< /toggle-panel >}}
-{{< toggle-panel name="Teku" >}}
-
-[Teku](https://github.com/ConsenSys/teku) as the Ethereum 2.0 Client.
-
-{{< /toggle-panel >}}
-{{< toggle-panel name="Nimbus" >}}
-
-[Nimbus](https://github.com/status-im/nimbus-eth2) as the Ethereum 2.0 Client.
-
-{{< /toggle-panel >}}
+- Ethereum 2.0 Client ([Prysm](https://github.com/prysmaticlabs/prysm), [Lighthouse](https://github.com/sigp/lighthouse), [Teku](https://github.com/ConsenSys/teku) or [Nimbus](https://github.com/status-im/nimbus-eth2))
 - [MicroK8s](https://microk8s.io/) as the Kubernertes destribution ([installation guide](https://microk8s.io/docs)).
 - [Helm 3](https://helm.sh/) to manage packages and releases.
 - [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) to run commands against Kubernetes clusters.
