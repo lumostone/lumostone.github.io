@@ -105,7 +105,7 @@ NFS：
 
 ### 選擇以太坊 2.0 用戶端
 
-之後的教學內容會根據你選擇的以太坊 2.0 用戶端而有所變動，請在繼續往下閱讀前選則一個用戶端：
+之後的教學內容會根據你選擇的以太坊 2.0 用戶端而有所變動，請在繼續往下閱讀前選擇一個用戶端：
 {{< content-toggle toggleTotal="4" toggle1="Prysm" toggle2="Lighthouse" toggle3="Teku" toggle4="Nimbus" active="toggle1" >}}
 
 ### 概要
