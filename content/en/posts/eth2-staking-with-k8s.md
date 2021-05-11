@@ -491,7 +491,7 @@ Please refer to [Prysm’s documentation](https://docs.prylabs.network/docs/main
 
 Please refer to [Lighthouse's documentation](https://lighthouse-book.sigmaprime.io/validator-import-launchpad.html) about how to import your validator accounts into Lighthouse or follow the instructions below.
 
-1. Please follow [Lighthouse's documentation](https://lighthouse-book.sigmaprime.io/installation-binaries.html) to download Lighthouse pre-built binary.
+1. Please follow [Lighthouse's documentation](https://lighthouse-book.sigmaprime.io/installation-binaries.html) to download the pre-built binary.
 
 2. Execute the binary with `--directory=<path/to/validator-keys>` (Remember to replace it with the directory you place the keys). We use `$HOME/eth2.0-deposit-cli/validator_keys` as the example path to the validator keys and `/data/lighthouse/validator-client-1` for the data directory of the validator client.
 
@@ -519,7 +519,7 @@ Please refer to [Teku's documentation](https://docs.teku.consensys.net/en/latest
 
 Please refer to [Nimbus's documentation](https://nimbus.guide/keys.html) about how to import your validator accounts into Nimbus or follow the instructions below.
 
-1. Please follow [Nimbus's documentation](https://nimbus.guide/binaries.html) to download Nimbus pre-built binary.
+1. Please follow [Nimbus's documentation](https://nimbus.guide/binaries.html) to download the pre-built binary.
 
 2. Execute the binary with the directory you place the keys. We use `$HOME/eth2.0-deposit-cli/validator_keys` as the example path to the validator keys and `/data/nimbus-1` for the data directory of the Nimbus client.
 
@@ -1133,7 +1133,7 @@ Hence, we can take advantage of Kubernetes to help us temporarily scale down the
 {{< /toggle-panel >}}
 {{< toggle-panel name="Lighthouse" >}}
 
-If you decide to downgrade the client version but there's schema change due to version upgrade, you might be able to use tools provided by the client team to reserve the database migration. If we use instructions in [Roll Back the Release with Helm](#roll-back-the-release-with-helm) directly, the pods will restart right after the version is changed by Helm and the client might not run due to the unmatched schema.
+If you decide to downgrade the client version but there's schema change due to version upgrade, you might be able to use tools provided by the client team to reverse the database migration. If we use instructions in [Roll Back the Release with Helm](#roll-back-the-release-with-helm) directly, the pods will restart right after the version is changed by Helm and the client might not run due to the unmatched schema.
 
 Hence, we can take advantage of Kubernetes to help us temporarily scale down the pods and then to run the reverse migration tool (if any) before rolling back.
 
@@ -1179,7 +1179,7 @@ Hence, we can take advantage of Kubernetes to help us temporarily scale down the
 {{< /toggle-panel >}}
 {{< toggle-panel name="Teku" >}}
 
-If you decide to downgrade the client version but there's schema change due to version upgrade, you might be able to use tools provided by the client team to reserve the database migration. If we use instructions in [Roll Back the Release with Helm](#roll-back-the-release-with-helm) directly, the pods will restart right after the version is changed by Helm and the client might not run due to the unmatched schema.
+If you decide to downgrade the client version but there's schema change due to version upgrade, you might be able to use tools provided by the client team to reverse the database migration. If we use instructions in [Roll Back the Release with Helm](#roll-back-the-release-with-helm) directly, the pods will restart right after the version is changed by Helm and the client might not run due to the unmatched schema.
 
 Hence, we can take advantage of Kubernetes to help us temporarily scale down the pods and then to run the reverse migration tool (if any) before rolling back.
 
@@ -1225,7 +1225,7 @@ Hence, we can take advantage of Kubernetes to help us temporarily scale down the
 {{< /toggle-panel >}}
 {{< toggle-panel name="Nimbus" >}}
 
-If you decide to downgrade the client version but there's schema change due to version upgrade, you might be able to use tools provided by the client team to reserve the database migration. If we use instructions in [Roll Back the Release with Helm](#roll-back-the-release-with-helm) directly, the pods will restart right after the version is changed by Helm and the client might not run due to the unmatched schema.
+If you decide to downgrade the client version but there's schema change due to version upgrade, you might be able to use tools provided by the client team to reverse the database migration. If we use instructions in [Roll Back the Release with Helm](#roll-back-the-release-with-helm) directly, the pods will restart right after the version is changed by Helm and the client might not run due to the unmatched schema.
 
 Hence, we can take advantage of Kubernetes to help us temporarily scale down the pods and then to run the reverse migration tool (if any) before rolling back.
 

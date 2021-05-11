@@ -426,7 +426,7 @@ sudo ufw allow 9000
     sudo mkdir -p /data/nimbus/beacon-2 /data/nimbus/validators-2 /data/nimbus/secrets-2
     ```
 
-    **P請注意每一個金鑰只能讓一個 Nimbus 用戶端使用。** 你可以匯入多個 validator 金鑰到同一個用戶端，並讓一個用戶端來為多個 validators 金鑰提交區塊驗證結果。
+    **請注意每一個金鑰只能讓一個 Nimbus 用戶端使用。** 你可以匯入多個 validator 金鑰到同一個用戶端，並讓一個用戶端來為多個 validators 金鑰提交區塊驗證結果。
 
     **為避免 slashing，請不要匯入同一個金鑰到多個 Nimbus 用戶端。**
 
@@ -512,7 +512,7 @@ sudo ufw allow 9000
     sudo cp  $HOME/eth2.0-deposit-cli/validator_keys/* /data/teku/validator-keys-1/
     ```
 
-2. 替每一把金鑰產生一個相對應的 txt 密碼檔（使用`eth2.0-deposit-cli`產生 validator 金鑰時所建立的那組密碼），並將密碼檔們移到們預計存放密碼的目錄裡（假設是`/data/teku/validator-key-passwords-1`）。例如，如果有一把金鑰的名稱是`keystore-m_123.json`, 我們需要產一個名為`keystore-m_123.txt`的檔案並把密碼存在檔案裡
+2. 替每一把金鑰產生一個相對應的 txt 密碼檔（使用`eth2.0-deposit-cli`產生 validator 金鑰時所建立的那組密碼），並將密碼檔們移到預計存放密碼的目錄裡（假設是`/data/teku/validator-key-passwords-1`）。例如，如果有一把金鑰的名稱是`keystore-m_123.json`, 我們需要產生一個名為`keystore-m_123.txt`的檔案並把密碼存在檔案裡
 
 {{< /toggle-panel >}}
 {{< toggle-panel name="Nimbus" >}}
@@ -609,7 +609,7 @@ sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
     - **securityContext.runAsGroup**: 容器裡的每個程序會使用這個 group ID 來執行。這個群組需擁有存取掛載的 NFS 資料目錄路徑的權限。我們用此來給予程序有限的權限，不然預設 Kubernetes 會使用 root 群組執行程序。
     - **image.versionTag**: Nimbus 用戶端版本
     - **nimbus.clients.client1**
-      - **.web3Provider** and **.fallbackWeb3Providers**: 以太坊 1.0 節點網址
+      - **.web3Provider** 及 **.fallbackWeb3Providers**: 以太坊 1.0 節點網址
       - **.dataVolumePath**: NFS 上的 beacon 資料目錄路徑
       - **.validatorsVolumePath**: NFS 上的 validator 金鑰存放區資料目錄路徑
       - **.secretsVolumePath**: NFS 上的 validator 金鑰存放區秘密資料目錄路徑
@@ -1014,8 +1014,7 @@ Helm 使用 [releases](https://helm.sh/docs/glossary/#release) 來追蹤 chart �
     microk8s kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
     ```
 
-2. 接著可以執行`kubectl top`指令來得到用量資訊，下面兩個例子分別會得到 beacon 及 validator 用戶端的用量。
-
+2. 接著可以執行`kubectl top`指令來得到用量資訊：
 {{< toggle-panel name="Prysm" active=true >}}
 
 ```bash
