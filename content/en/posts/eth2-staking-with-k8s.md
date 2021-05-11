@@ -7,9 +7,7 @@ aliases:
     - /en/eth2-staking-with-k8s-prysm/
 ---
 
-> On May 10, 2020, this guide has been updated to include Lighthouse, Teku and Nimbus clients along with Prysm, the Ethereum 2.0 client we started with.
-
-{{< content-toggle toggleTotal="4" toggle1="Prysm" toggle2="Lighthouse" toggle3="Teku" toggle4="Nimbus" active="toggle1" >}}
+> On May 10, 2021, this guide has been updated to include Lighthouse, Teku and Nimbus clients along with Prysm, the Ethereum 2.0 client we started with.
 
 ## Why Stake with Kubernetes?
 
@@ -123,6 +121,11 @@ NFS:
 - You have installed Ubuntu Server 20.04.2 LTS (x64) on all the servers and have assigned static IPs.
 
 ## Walkthrough
+
+### Choose Your Ethereum 2.0 Client
+
+The content of the following guide will be changed based on your client selection. Please choose the one your prefer before continue reading:
+{{< content-toggle toggleTotal="4" toggle1="Prysm" toggle2="Lighthouse" toggle3="Teku" toggle4="Nimbus" active="toggle1" >}}
 
 ### Overview
 
@@ -419,7 +422,7 @@ On the machine you plan to run NFS:
 {{< /toggle-panel >}}
 {{< toggle-panel name="Teku" >}}
 
-1. Create directories for the beacon node, validator clients, validator keys and key passwords.
+2. Create directories for the beacon node, validator clients, validator keys and key passwords.
 
     ```bash
     sudo mkdir -p /data/teku/beacon
@@ -448,7 +451,7 @@ On the machine you plan to run NFS:
 
 {{< /toggle-panel >}}
 
-1. Configure and export NFS storage.
+3. Configure and export NFS storage.
 
     ```bash
     sudo nano /etc/exports
@@ -475,7 +478,7 @@ On the machine you plan to run NFS:
     sudo exportfs -a
     ```
 
-2. On your master and worker nodes, enable NFS support by installing `nfs-common`:
+4. On your master and worker nodes, enable NFS support by installing `nfs-common`:
 
     ```bash
     sudo apt install nfs-common
@@ -486,7 +489,7 @@ On the machine you plan to run NFS:
 Let’s get back to the NFS server to import the validator keys created with [eth2.0-deposit-cli](https://github.com/ethereum/eth2.0-deposit-cli). Before proceeding, please have your validator keys placed on your NFS machine.
 {{< toggle-panel name="Prysm" active=true >}}
 
-Please refer to [Prysm’s documentation](https://docs.prylabs.network/docs/mainnet/joining-eth2/#step-4-import-your-validator-accounts-into-prysm) about how to import your validator accounts into Prysm.
+Please refer to [Prysm’s documentation](https://docs.prylabs.network/docs/mainnet/joining-eth2/#step-4-import-your-validator-accounts-into-prysm) about how to import your validator accounts into Prysm or follow the instructions below.
 
 1. Please follow [Prysm’s documentation](https://docs.prylabs.network/docs/install/install-with-script/#downloading-the-prysm-startup-script) to download Prysm startup script.
 
@@ -505,7 +508,7 @@ Please refer to [Prysm’s documentation](https://docs.prylabs.network/docs/main
 {{< /toggle-panel >}}
 {{< toggle-panel name="Lighthouse" >}}
 
-Please refer to [Lighthouse's documentation](https://lighthouse-book.sigmaprime.io/validator-import-launchpad.html) about how to import your validator accounts into Lighthouse.
+Please refer to [Lighthouse's documentation](https://lighthouse-book.sigmaprime.io/validator-import-launchpad.html) about how to import your validator accounts into Lighthouse or follow the instructions below.
 
 1. Please follow [Lighthouse's documentation](https://lighthouse-book.sigmaprime.io/installation-binaries.html) to download Lighthouse pre-built binary.
 
@@ -520,24 +523,24 @@ Please refer to [Lighthouse's documentation](https://lighthouse-book.sigmaprime.
 {{< /toggle-panel >}}
 {{< toggle-panel name="Teku" >}}
 
-Please refer to [Teku's documentation](https://docs.teku.consensys.net/en/latest/HowTo/Get-Started/Connect/Connect-To-Testnet/#generate-the-validators-and-send-the-deposits) about how to import your validator accounts into Teku.
+Please refer to [Teku's documentation](https://docs.teku.consensys.net/en/latest/HowTo/Get-Started/Connect/Connect-To-Testnet/#generate-the-validators-and-send-the-deposits) about how to import your validator accounts into Teku or follow the instructions below.
 
-1. Copy validator keys into the target folder for keys. Assume our keys generated with `eth2.0-deposit-cli` is under `$HOME/eth2.0-deposit-cli/validator_keys` and our target folder for keys is /data/teku/validator-keys-1
+1. Copy validator keys into the target folder for keys. Assume our keys generated with `eth2.0-deposit-cli` is under `$HOME/eth2.0-deposit-cli/validator_keys` and our target folder for keys is `/data/teku/validator-keys-1`
 
     ```bash
     sudo cp  $HOME/eth2.0-deposit-cli/validator_keys/* /data/teku/validator-keys-1/
     ```
 
-2. Create one password txt file for each corresponding key in the target folder for key passwords, `/data/teku/validator-key-passwords-1`. For example, if there's a keystore named keystore-m_123.json, you'll need to create a file named keystore-m_123.txt and store the keystore's password in it.
+2. Create one password txt file for each corresponding key in the target folder for key passwords (assume it's `/data/teku/validator-key-passwords-1`). For example, if there's a keystore named `keystore-m_123.json`, you'll need to create a file named `keystore-m_123.txt` and store the keystore's password in it.
 
 {{< /toggle-panel >}}
 {{< toggle-panel name="Nimbus" >}}
 
-Please refer to [Nimbus's documentation](https://nimbus.guide/keys.html) about how to import your validator accounts into Nimbus.
+Please refer to [Nimbus's documentation](https://nimbus.guide/keys.html) about how to import your validator accounts into Nimbus or follow the instructions below.
 
 1. Please follow [Nimbus's documentation](https://nimbus.guide/binaries.html) to download Nimbus pre-built binary.
 
-2. Execute the binary with `<path/to/validator-keys>` (Remember to replace it with the directory you place the keys). We use `$HOME/eth2.0-deposit-cli/validator_keys` as the example path to the validator keys and `/data/nimbus-1` for the data directory of the Nimbus client.
+2. Execute the binary with the directory you place the keys. We use `$HOME/eth2.0-deposit-cli/validator_keys` as the example path to the validator keys and `/data/nimbus-1` for the data directory of the Nimbus client.
 
     ```bash
     sudo nimbus_beacon_node deposits import --data-dir=/data/nimbus-1 $HOME/eth2.0-deposit-cli/validator_keys
@@ -546,6 +549,7 @@ Please refer to [Nimbus's documentation](https://nimbus.guide/keys.html) about h
 3. Enter the password you used to create the validator keys with `eth2.0-deposit-cli`. If you enter it correctly, the keys will be imported.
 
 {{< /toggle-panel >}}
+
 ### Change the owner of the data folder
 
 On the NFS machine, let’s change the directory owners so later these directories can be mounted by Kubernetes as the storage volumes for the pods running the beacon node and the validator clients. 
@@ -585,7 +589,7 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
 {{< /toggle-panel >}}
 {{< toggle-panel name="Lighthouse" >}}
 
-1. Change values in [./lighthouse/helm/values.yaml](https://github.com/lumostone/eth2xk8s/blob/master/lighthouse/helm/values.yaml).
+2. Change values in [lighthouse/helm/values.yaml](https://github.com/lumostone/eth2xk8s/blob/master/lighthouse/helm/values.yaml).
 
     We recommend checking each field in `values.yaml` to determine the desired configuration. Fields that need to be changed or verified before installing the chart are the following ones:
     - **nfs.serverIp**: NFS server IP address.
@@ -599,7 +603,7 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
 {{< /toggle-panel >}}
 {{< toggle-panel name="Teku" >}}
 
-1. Change values in [./teku/helm/values.yaml](https://github.com/lumostone/eth2xk8s/blob/master/teku/helm/values.yaml).
+2. Change values in [teku/helm/values.yaml](https://github.com/lumostone/eth2xk8s/blob/master/teku/helm/values.yaml).
 
     We recommend checking each field in `values.yaml` to determine the desired configuration. Fields that need to be changed or verified before installing the chart are the following ones:
     - **nfs.serverIp**: NFS server IP address.
@@ -616,7 +620,7 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
 {{< /toggle-panel >}}
 {{< toggle-panel name="Nimbus" >}}
 
-1. Change values in [./nimbus/helm/values.yaml](https://github.com/lumostone/eth2xk8s/blob/master/nimbus/helm/values.yaml).
+2. Change values in [nimbus/helm/values.yaml](https://github.com/lumostone/eth2xk8s/blob/master/nimbus/helm/values.yaml).
 
     We recommend checking each field in `values.yaml` to determine the desired configuration. Fields that need to be changed or verified before installing the chart are the following ones:
     - **nfs.serverIp**: NFS server IP address.
@@ -742,7 +746,7 @@ On your master:
     microk8s kubectl get pod -nprysm -w
     ```
 
-    This command will watch for changes. You can monitor it until the beacon node and validator clients are all in RUNNING status.
+    This command will watch for changes. You can monitor it until the beacon node and validator clients are all in `Running` status.
 
 2. Check the log of the beacon node.
 
@@ -771,7 +775,7 @@ On your master:
     microk8s kubectl get pod -nlighthouse -w
     ```
 
-    This command will watch for changes. You can monitor it until the beacon node and validator clients are all in RUNNING status.
+    This command will watch for changes. You can monitor it until the beacon node and validator clients are all in `Running` status.
 
 2. Check the log of the beacon node.
 
@@ -800,7 +804,7 @@ On your master:
     microk8s kubectl get pod -nteku -w
     ```
 
-    This command will watch for changes. You can monitor it until the beacon node and validator clients are all in RUNNING status.
+    This command will watch for changes. You can monitor it until the beacon node and validator clients are all in `Running` status.
 
 2. Check the log of the beacon node.
 
@@ -829,9 +833,9 @@ On your master:
     microk8s kubectl get pod -nnimbus -w
     ```
 
-    This command will watch for changes. You can monitor it until the clients are all in RUNNING status.
+    This command will watch for changes. You can monitor it until the clients are all in `Running` status.
 
-2. Check the log of the first nimbus client.
+2. Check the log of the first Nimbus client.
 
     ```bash
     microk8s kubectl logs -f -nnimbus -l app=nimbus-1
@@ -930,7 +934,7 @@ Ethereum 2.0 client teams work hard to push new versions frequently. Ideally, we
 
 ### Roll Back the Release with Helm
 
-Rolling back with Helm is usually as straightforward as upgrading when there’s no database schema changes involved. If the rollback involves schema changes, please refer to [Appendix: Roll Back the Release with Helm (Schema Changes)](#roll-back-the-release-with-helm-schema-changes) for details. Otherwise, you can follow the steps below:
+If the rollback involves schema changes, please refer to [Appendix: Roll Back the Release with Helm (Schema Changes)](#roll-back-the-release-with-helm-schema-changes) for details. Otherwise, rolling back with Helm is usually as straightforward as upgrading when there’s no database schema changes involved. You can follow the steps below:
 
 {{< toggle-panel name="Prysm" active=true >}}
 

@@ -7,28 +7,48 @@ aliases:
     - /zh-tw/eth2-staking-with-k8s-prysm/
 ---
 
-{{< content-toggle toggleTotal="4" toggle1="Prysm" toggle2="Lighthouse" toggle3="Teku" toggle4="Nimbus" active="toggle1" >}}
+> 2021/05/10: 在這篇教學裡，除了原本包含的 Prysm 以外，我們也加上了 Lighthouse, Teku 以及 Nimbus 的教學！
 
 ## 為什麼使用 Kubernetes 作 staking？
+
 作為 staker，我們常擔憂 validator 是否會突然停機，或是被區塊鏈上其他節點認作是壞成員而遭到驅逐（slashing）。如何最小化停機時間和降低被驅逐的風險，成為了一個 staker 時常考慮的問題。
 
 停機的原因百百種，可能是系統需要執行更新，軟體有問題，網路斷線，硬碟罷工等等。我們都希望可以時時監控，一旦有問題發生就立刻處理，但問題可大可小，不是每一次都能很快修復，除非是全職 staking，不然一般也沒辦法二十四小時監控處理。面對這種有高可用性的需求情境時，我們很自然地會想到 redundancy，如果怕一台機器停工，那我就再多準備幾台機器，一旦有問題就可以把系統轉移到健康的機器。
 
 然而，我們常在論壇上看到 staker 們彼此警告「redundancy 可能會導致 slashing」，因為在轉移系統的過程，可能會因為手動操作疏失，不小心讓多個 validator 用戶端同時使用同一個 validator 金鑰，或是 slashing protection database 移轉時資料毀損，新的 validator 太快上線，又重新上傳了已經驗證過的區塊等等，這些都會讓 validator 面臨 slashing 的懲罰。當我們有多個 validator ，又同時想要追求 redundancy、高可用性，這些維運複雜度就會跟著上升，追求 redundancy 反而產生更多 slashing 的風險。
 
-**我們有可能降低 slashing 風險跟維運複雜度，同時又能擁抱 redundancy 帶給我們的好處嗎？** 有的！我們認為 [Kubernetes](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/) 可以幫我們做到這件事，運用 Kubernetes 管理 validator 的生命週期，自動化容錯移轉（failover），在軟體更新時，只需要更改版本號，Kubernetes 就可以幫我們安全升級，今天硬體要更新，要手動移轉 validator 時，僅用一個指令便能完成（例如：`kubectl drain node`）。 
+**我們有可能降低 slashing 風險跟維運複雜度，同時又能擁抱 redundancy 帶給我們的好處嗎？** 有的！我們認為 [Kubernetes](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/) 可以幫我們做到這件事，運用 Kubernetes 管理 validator 的生命週期，自動化容錯移轉（failover），在軟體更新時，只需要更改版本號，Kubernetes 就可以幫我們安全升級，今天硬體要更新，要手動移轉 validator 時，僅用一個指令便能完成（例如：`kubectl drain node`）。
 
 我們希望這篇教學文章可以作為以太坊 2.0 staker community 的墊腳石，讓 stakers 可以利用 Kubernetes 建立一個有擴充性又有 redundancy 的基礎架構，一起輕鬆 staking！
 
 ## 感謝
-謝謝以太坊基金會以 [Eth2 Staking Community Grants](https://blog.ethereum.org/2021/02/09/esp-staking-community-grantee-announcement/) 支持這個專案，能夠對 staker community 貢獻是我們的榮幸！
 
+謝謝以太坊基金會以 [Eth2 Staking Community Grants](https://blog.ethereum.org/2021/02/09/esp-staking-community-grantee-announcement/) 支持這個專案，能夠對 staker community 貢獻是我們的榮幸！
 
 ## 使用工具
 
 這份教學將示範如何在一個 Kubernetes 叢集上維運一個以太坊 2.0 beacon 用戶端和多個 validator 用戶端， 以下是我們使用的工具：
 
-- [Prysm](https://github.com/prysmaticlabs/prysm) 以太坊 2.0 用戶端
+- {{< toggle-panel name="Prysm" active=true >}}
+
+[Prysm](https://github.com/prysmaticlabs/prysm) 以太坊 2.0 用戶端
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Lighthouse" >}}
+
+[Lighthouse](https://github.com/sigp/lighthouse) 以太坊 2.0 用戶端
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Teku" >}}
+
+[Teku](https://github.com/ConsenSys/teku) 以太坊 2.0 用戶端
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Nimbus" >}}
+
+[Nimbus](https://github.com/status-im/nimbus-eth2) 以太坊 2.0 用戶端
+
+{{< /toggle-panel >}}
 - [MicroK8s](https://microk8s.io/) 輕量的 Kubernertes 發行版（[安裝教學](https://microk8s.io/docs)）
 - [Helm 3](https://helm.sh/) Kubernetes 套件管理工具
 - [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) Kubernetes CLI 工具
@@ -40,12 +60,12 @@ aliases:
 
 這份教學包含以下內容：
 
-- 使用 MicroK8s 建立一個 Kubernetes 叢集。如果你有已建好的 Kubernetes 叢集，或想使用其他的  Kubernetes 發行版，可以在建好叢集後跳至「[安裝和設定NFS](#安裝和設定-nfs)」章節。如果你是使用雲端服務提供商所提供的 Kubernetes 托管服務（例如 AKS, EKS, GKE 等），你可以考慮直接使用雲端存儲服務（例如 Azure Disk, AWS S3 等）作為 beacon 與 validator 用戶端的持久性儲存系統，而非使用 NFS。我們未來會撰寫其他文章討論這個部分。
+- 使用 MicroK8s 建立一個 Kubernetes 叢集。如果你有已建好的 Kubernetes 叢集，或想使用其他的 Kubernetes 發行版，可以在建好叢集後跳至「[安裝和設定NFS](#安裝和設定-nfs)」章節。如果你是使用雲端服務提供商所提供的 Kubernetes 托管服務（例如 AKS, EKS, GKE 等），你可以考慮直接使用雲端存儲服務（例如 Azure Disk, AWS S3 等）作為 beacon 與 validator 用戶端的持久性儲存系統，而非使用 NFS。我們未來會撰寫其他文章討論這個部分。
 - 安裝和設定 NFS。
-- 準備用以安裝 Prysm 以太坊 2.0 用戶端的 Helm Chart。
-- 使用 Helm Chart 安裝 Prysm 以太坊 2.0 用戶端。
+- 準備用以安裝以太坊 2.0 用戶端的 Helm Chart。
+- 使用 Helm Chart 安裝以太坊 2.0 用戶端。
 - 確認用戶端狀態。
-- 使用 Helm Chart 升級和回溯 Prysm 以太坊 2.0 用戶端。
+- 使用 Helm Chart 升級和回溯以太坊 2.0 用戶端。
 
 ## 非本文目標
 
@@ -58,27 +78,27 @@ aliases:
 
 ## 免責聲明
 
-這份教學的設置目前僅在以太坊測試網路上開發和測試。 
+這份教學的設置目前僅在以太坊測試網路上開發和測試。
 
 做質押挖礦（staking）的礦工要承擔相應的風險，我們強烈建議，在正式網路（mainnet）staking 前，都先在測試網路上試跑，藉此熟悉所有可能的維運操作，並透過系統在測試網路上的表現調整硬體配備，強化系統安全。這份教學僅作為使用 Kubernetes 作 staking 的設置參考，**對於因遵循本指南而造成的任何財務損失，作者概不負責。**
 
 ## 系統需求
 
-我們需要至少三台機器（虛擬機或實體機皆可）來完成這份教學的設置。一台機器會作為 NFS 伺服器來儲存 staking 資料；第二台機器作為 Kubernetes 叢集裡的「主要」（master）節點，用來運行 Kubernetes 的核心元件；第三台機器則是 Kubernetes 叢集裡的 「工作」（worker）節點用以執行 beacon 及 validator 用戶端。若要作高可用性配置，請參考 [MicroK8s 高可用性設定文件](https://microk8s.io/docs/high-availability)來新增更多的節點，並定期備份 beacon 資料，這樣在資料毀損重建時，也可以較快完成同步再次上線。我們將會在往後的文章裡討論高可用性的設置。 
+我們需要至少三台機器（虛擬機或實體機皆可）來完成這份教學的設置。一台機器會作為 NFS 伺服器來儲存 staking 資料；第二台機器作為 Kubernetes 叢集裡的「主要」（master）節點，用來運行 Kubernetes 的核心元件；第三台機器則是 Kubernetes 叢集裡的 「工作」（worker）節點用以執行 beacon 及 validator 用戶端。若要作高可用性配置，請參考 [MicroK8s 高可用性設定文件](https://microk8s.io/docs/high-availability)來新增更多的節點，並定期備份 beacon 資料，這樣在資料毀損重建時，也可以較快完成同步再次上線。我們將會在往後的文章裡討論高可用性的設置。
 
 基於在 [**Prater 測試網路**](https://prater.beaconcha.in/)上的試跑結果以及 [MicroK8s 官方文件](https://microk8s.io/docs)，以下是我們建議的最小系統需求。請注意，**最小系統需求並不保證最佳的系統表現及成本效益。**
 
-Master 主要節點： 
+Master 主要節點：
 
 - RAM: 至少 8 GB
-- CPU: 至少 1 core 
-- Disk: 至少 20 GB 
+- CPU: 至少 1 core
+- Disk: 至少 20 GB
 
 Worker 工作節點：
 
 - RAM: 至少 8 GB
-- CPU: 至少 1 core 
-- Disk: 至少 20 GB 
+- CPU: 至少 1 core
+- Disk: 至少 20 GB
 
 NFS：
 
@@ -95,12 +115,17 @@ NFS：
 
 ## 事前準備
 
-- 已為 validator 存入足夠的押金，並已產生 validator 金鑰。如果需要參考步驟，我們推薦 [Somer Esat 的教學文章](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-prysm-a10b5129c7e3)。
-- 已擁有一個以太坊 1.0 測試網路 Goerli 的節點：[Somer Esat 的教學文章](https://someresat.medium.com/guide-to-staking-on-ethereum-2-0-ubuntu-pyrmont-prysm-a10b5129c7e3)也包含了如何架設以太坊 1.0 的測試網路節點，你也可以選擇使用第三方的服務如 [Infura](https://infura.io/) 或 [Alchemy](https://alchemyapi.io/)。
+- 已為 validator 存入足夠的押金，並已產生 validator 金鑰。如果需要參考步驟，我們推薦 [Somer Esat 的教學文章](https://medium.com/search?q=someresat%20Guide%20to%20Staking)。
+- 已擁有一個以太坊 1.0 測試網路 Goerli 的節點：[Somer Esat 的教學文章](https://medium.com/search?q=someresat%20Guide%20to%20Staking)也包含了如何架設以太坊 1.0 的測試網路節點，你也可以選擇使用第三方的服務如 [Infura](https://infura.io/) 或 [Alchemy](https://alchemyapi.io/)。
 - 規劃好內網，設定好防火牆跟轉發通訊埠。在「[設定步驟](#設定步驟)」章節會提到我們使用的網路設定。
 - 已在三台機器安裝 Ubuntu Server 20.04.2 LTS (x64) ，並已指派靜態 IP 位址。
 
 ## 設定步驟
+
+### 選擇以太坊 2.0 用戶端
+
+之後的教學內容會根據你選擇的以太坊 2.0 用戶端而有所變動，請在繼續往下閱讀前選則一個用戶端：
+{{< content-toggle toggleTotal="4" toggle1="Prysm" toggle2="Lighthouse" toggle3="Teku" toggle4="Nimbus" active="toggle1" >}}
 
 ### 概要
 
@@ -133,7 +158,7 @@ sudo reboot
     sudo timedatectl set-timezone America/Los_Angeles
     ```
 
-2. 確認預設的 timekeeping service (NTP service) 有啟動 
+2. 確認預設的 timekeeping service (NTP service) 有啟動
 
     ```bash
     timedatectl
@@ -233,11 +258,35 @@ sudo reboot
     ```
 
 6. 在主要節點與工作節點的機器上，加入 beacon 節點所需的防火牆規則：
+{{< toggle-panel name="Prysm" active=true >}}
 
-    ```bash
-    sudo ufw allow 12000/udp
-    sudo ufw allow 13000/tcp
-    ```
+```bash
+sudo ufw allow 12000/udp
+sudo ufw allow 13000/tcp
+```
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Lighthouse" >}}
+
+```bash
+sudo ufw allow 9000
+```
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Teku" >}}
+
+```bash
+sudo ufw allow 9000
+```
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Nimbus" >}}
+
+```bash
+sudo ufw allow 9000
+```
+
+{{< /toggle-panel >}}
 
 7. 最後，在每一台機器上啟動防火牆服務
 
@@ -258,7 +307,7 @@ sudo reboot
     sudo snap install microk8s --classic --channel=1.20/stable
     ```
 
-2. 授予非管理員使用者（non-root user）管理 MicroK8s 的權限。將該使用者加入 MicroK8s 的群組中，並改變`~/.kube` 目錄的所有權：
+2. 授予非管理員使用者（non-root user）管理 MicroK8s 的權限。將該使用者加入 MicroK8s 的群組中，並改變`~/.kube`目錄的所有權：
 
     ```bash
     sudo usermod -a -G microk8s $USER
@@ -339,6 +388,8 @@ sudo reboot
     sudo systemctl start nfs-kernel-server.service
     ```
 
+{{< toggle-panel name="Prysm" active=true >}}
+
 2. 為 beacon、validator 用戶端及錢包建資料目錄
 
     ```bash
@@ -348,11 +399,59 @@ sudo reboot
     sudo mkdir -p /data/prysm/validator-client-2 /data/prysm/wallet-2
     ```
 
-    **請注意每一個錢包只能讓一個 validator 用戶端使用。** 你可以匯入多個 validator 金鑰到同一個錢包，並讓一個 validator 用戶端來為多個 validators 提交區塊驗證結果。
-    
-    **為避免 slashing，請不要讓多個 validator 用戶端使用同一個錢包，或將同一把 validator 金鑰匯入多個有 validator 使用的錢包。**
+    **請注意每一個錢包只能讓一個 validator 用戶端使用。** 你可以匯入多個 validator 金鑰到同一個錢包，並讓一個 validator 用戶端來為多個 validators 金鑰提交區塊驗證結果。
 
-3. 設定並匯出 NFS 儲存空間
+    **為避免 slashing，請不要讓多個 validator 用戶端使用同一個錢包，或將同一把 validator 金鑰匯入多個有 validator 用戶端使用的錢包。**
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Lighthouse" >}}
+
+2. 為 beacon 及 validator 用戶端建資料目錄
+
+    ```bash
+    sudo mkdir -p /data/lighthouse/beacon
+
+    sudo mkdir -p /data/lighthouse/validator-client-1
+    sudo mkdir -p /data/lighthouse/validator-client-2
+    ```
+
+    **請注意每一個金鑰只能讓一個 validator 用戶端使用。** 你可以匯入多個 validator 金鑰到同一個 validator 用戶端，並讓一個 validator 用戶端來為多個 validators 金鑰提交區塊驗證結果。
+
+    **為避免 slashing，請不要匯入同一個金鑰到多個 validator 用戶端。**
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Teku" >}}
+
+2. 為 beacon、validator 用戶端、validator 金鑰及金鑰密碼建資料目錄
+
+    ```bash
+    sudo mkdir -p /data/teku/beacon
+
+    sudo mkdir -p /data/teku/validator-client-1 /data/teku/validator-keys-1 /data/teku/validator-key-passwords-1
+    sudo mkdir -p /data/teku/validator-client-2 /data/teku/validator-keys-2 /data/teku/validator-key-passwords-2
+    ```
+
+    **請注意每一個金鑰只能讓一個 validator 用戶端使用。** 你可以匯入多個 validator 金鑰到同一個 validator 用戶端，並讓一個 validator 用戶端來為多個 validators 金鑰提交區塊驗證結果。
+
+    **為避免 slashing，請不要匯入同一個金鑰到多個 validator 用戶端。**
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Nimbus" >}}
+
+2. 為 beacon、validator及秘密建資料目錄
+
+    ```bash
+    sudo mkdir -p /data/nimbus/beacon-1 /data/nimbus/validators-1 /data/nimbus/secrets-1
+    sudo mkdir -p /data/nimbus/beacon-2 /data/nimbus/validators-2 /data/nimbus/secrets-2
+    ```
+
+    **P請注意每一個金鑰只能讓一個 Nimbus 用戶端使用。** 你可以匯入多個 validator 金鑰到同一個用戶端，並讓一個用戶端來為多個 validators 金鑰提交區塊驗證結果。
+
+    **為避免 slashing，請不要匯入同一個金鑰到多個 Nimbus 用戶端。**
+
+{{< /toggle-panel >}}
+
+1. 設定並匯出 NFS 儲存空間
 
     ```bash
     sudo nano /etc/exports
@@ -366,7 +465,7 @@ sudo reboot
 
     設定選項敘述：
 
-    - **\***: hostname 格式 
+    - **\***: hostname 格式
     - **rw**: 讀寫權限
     - **sync**: 在回覆更動要求前，所有的改變都保證會被寫入儲存空間
     - **no_subtree_check**: 如果設定中包含 no_subtree_check 這個值，之後將不會檢查 subtree。雖然這個設定可能帶來一些安全疑慮，但在某些狀況下，穩定性會因此提升。因為 subtree_checking 比起 no_subtree_check 會造成更多問題，在 nfs-utils 版本 1.1.0 及往後版本，預設值都是 no_subtree_check。
@@ -379,8 +478,7 @@ sudo reboot
     sudo exportfs -a
     ```
 
-
-4. 在主要節點及工作節點上安裝`nfs-common`以支援 NFS：
+2. 在主要節點及工作節點上安裝`nfs-common`以支援 NFS：
 
     ```bash
     sudo apt install nfs-common
@@ -388,24 +486,69 @@ sudo reboot
 
 ### 匯入 Validator 金鑰
 
-你可以直接參考 [Prysm 官方文件](https://docs.prylabs.network/docs/mainnet/joining-eth2/#step-4-import-your-validator-accounts-into-prysm)，或參考以下步驟來完成錢包設定：
+這一個章節我們要來匯入使用 [eth2.0-deposit-cli](https://github.com/ethereum/eth2.0-deposit-cli) 產生的 validator 金鑰。在設定前，請先確認 validator 金鑰已經傳到 NFS 伺服器上。
+{{< toggle-panel name="Prysm" active=true >}}
 
-在設定錢包前，請先確認 validator 金鑰已經傳到 NFS 伺服器上。這一個章節我們要來用上一章裡建好的錢包目錄來建立錢包並匯入 validator 金鑰。
+你可以直接參考 [Prysm 官方文件](https://docs.prylabs.network/docs/mainnet/joining-eth2/#step-4-import-your-validator-accounts-into-prysm)，或參考以下步驟來完成設定：
 
-我們使用 Prysm 提供的腳本來完成設定：
 1. 請參考 [Prysm 官方文件](https://docs.prylabs.network/docs/install/install-with-script/#downloading-the-prysm-startup-script)下載設定腳本（Prysm startup script）
 
 2. 執行腳本時要提供金鑰所在的目錄路徑到`--keys-dir=<path/to/validator-keys>`參數。我們的範例裡使用`$HOME/eth2.0-deposit-cli/validator_keys`當作金鑰目錄
 
     ```bash
-    sudo ./prysm.sh validator accounts import --keys-dir=$HOME/eth2.0-deposit-cli/validator_keys
+    sudo ./prysm.sh validator accounts import --keys-dir=$HOME/eth2.0-deposit-cli/validator_keys --prater
     ```
 
 3. 接著輸入錢包目錄路徑，例如`/data/prysm/wallet-1`
 
 4. 輸入錢包密碼（**記得備份在一個安全的地方！**)
 
-5. 接著輸入 validator 金鑰的密碼（使用 [eth2.0-deposit-cli](https://github.com/ethereum/eth2.0-deposit-cli) 產生 validator 金鑰時所建立的那組密碼）。如果輸入正確，即可成功匯入 validator 帳號至錢包裡。
+5. 接著輸入 validator 金鑰的密碼（使用`eth2.0-deposit-cli`產生 validator 金鑰時所建立的那組密碼）。如果輸入正確，即可成功匯入 validator 帳號至錢包裡。
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Lighthouse" >}}
+
+你可以直接參考 [Lighthouse 官方文件](https://lighthouse-book.sigmaprime.io/validator-import-launchpad.html)，或參考以下步驟來完成設定：
+
+1. 請參考 [Lighthouse 官方文件](https://lighthouse-book.sigmaprime.io/installation-binaries.html)下載編譯好的執行檔
+
+2. 執行時要提供金鑰所在的目錄路徑到`--directory=<path/to/validator-keys>`參數。我們的範例裡使用`$HOME/eth2.0-deposit-cli/validator_keys`當作金鑰目錄以及`/data/lighthouse/validator-client-1`當作 validator 用戶端的資料目錄
+
+    ```bash
+    sudo ./lighthouse --network prater account validator import --directory $HOME/eth2.0-deposit-cli/validator_keys --datadir /data/lighthouse/validator-client-1 --reuse-password
+    ```
+
+3. 接著輸入 validator 金鑰的密碼（使用`eth2.0-deposit-cli`產生 validator 金鑰時所建立的那組密碼）。如果輸入正確，即可成功匯入 validator 金鑰。
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Teku" >}}
+
+你可以直接參考 [Teku 官方文件](https://docs.teku.consensys.net/en/latest/HowTo/Get-Started/Connect/Connect-To-Testnet/#generate-the-validators-and-send-the-deposits)，或參考以下步驟來完成設定：
+
+1. 複製 validator 金鑰到我們預計存放金鑰的目錄裡。假設我們使用`eth2.0-deposit-cli`產生的金鑰在`$HOME/eth2.0-deposit-cli/validator_keys`目錄，而我們預計將金鑰存放在`/data/teku/validator-keys-1`目錄
+
+    ```bash
+    sudo cp  $HOME/eth2.0-deposit-cli/validator_keys/* /data/teku/validator-keys-1/
+    ```
+
+2. 替每一把金鑰產生一個相對應的 txt 密碼檔（使用`eth2.0-deposit-cli`產生 validator 金鑰時所建立的那組密碼），並將密碼檔們移到們預計存放密碼的目錄裡（假設是`/data/teku/validator-key-passwords-1`）。例如，如果有一把金鑰的名稱是`keystore-m_123.json`, 我們需要產一個名為`keystore-m_123.txt`的檔案並把密碼存在檔案裡
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Nimbus" >}}
+
+你可以直接參考 [Nimbus 官方文件](https://nimbus.guide/keys.html)，或參考以下步驟來完成設定：
+
+1. 請參考 [Nimbus 官方文件](https://nimbus.guide/binaries.html)下載編譯好的執行檔
+
+2. 執行時要提供金鑰所在的目錄路徑。我們的範例裡使用`$HOME/eth2.0-deposit-cli/validator_keys`當作金鑰目錄以及`/data/nimbus-1`當作 Nimbus 用戶端的資料目錄
+
+    ```bash
+    sudo nimbus_beacon_node deposits import --data-dir=/data/nimbus-1 $HOME/eth2.0-deposit-cli/validator_keys
+    ```
+
+3. 接著輸入 validator 金鑰的密碼（使用`eth2.0-deposit-cli`產生 validator 金鑰時所建立的那組密碼）。如果輸入正確，即可成功匯入 validator 金鑰。
+
+{{< /toggle-panel >}}
 
 ### 改變資料目錄擁有者
 
@@ -427,24 +570,77 @@ sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
     git clone https://github.com/lumostone/eth2xk8s.git
     ```
 
+{{< toggle-panel name="Prysm" active=true >}}
+
 2. 更改 [prysm/helm/values.yaml](https://github.com/lumostone/eth2xk8s/blob/master/prysm/helm/values.yaml) 的值
 
     建議閱讀`values.yaml`的每個變數及說明，確認是否更改預設值。以下列出安裝 Helm Chart 前必須更改的變數：
     - **nfs.serverIp**: NFS 伺服器 IP 地址
-    - **nfs.user**: 容器（container）裡的每個程序（process）會使用這個 user ID 來執行。這個使用者需擁有存取掛載的 NFS 資料目錄路徑的權限。
-    - **nfs.group**: 容器裡的每個程序會使用這個 group ID 來執行。這個群組需擁有存取掛載的 NFS 資料目錄路徑的權限。我們用此來給予程序有限的權限，不然預設 Kubernetes 會使用 root 群組執行程序。
-    - **image.version**: Prysm 用戶端版本
+    - **securityContext.runAsUse**: 容器裡的每個程序會使用這個 user ID 來執行。這個使用者需擁有存取掛載的 NFS 資料目錄路徑的權限。
+    - **securityContext.runAsGroup**: 容器裡的每個程序會使用這個 group ID 來執行。這個群組需擁有存取掛載的 NFS 資料目錄路徑的權限。我們用此來給予程序有限的權限，不然預設 Kubernetes 會使用 root 群組執行程序。
+    - **image.versionTag**: Prysm 用戶端版本
     - **beacon.dataVolumePath**: NFS 上的 beacon 資料目錄路徑
     - **beacon.web3Provider** 及 **beacon.fallbackWeb3Providers**: 以太坊 1.0 節點網址
+    - **validatorClients.validatorClient1**
+      - **.dataVolumePath**: NFS 上的 validator 用戶端資料目錄路徑
+      - **.walletVolumePath**: NFS 上的錢包資料目錄路徑
+      - **.walletPassword**: 錢包密碼
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Lighthouse" >}}
+
+2. 更改 [lighthouse/helm/values.yaml](https://github.com/lumostone/eth2xk8s/blob/master/lighthouse/helm/values.yaml) 的值
+
+    建議閱讀`values.yaml`的每個變數及說明，確認是否更改預設值。以下列出安裝 Helm Chart 前必須更改的變數：
+    - **nfs.serverIp**: NFS 伺服器 IP 地址
+    - **securityContext.runAsUse**: 容器裡的每個程序會使用這個 user ID 來執行。這個使用者需擁有存取掛載的 NFS 資料目錄路徑的權限。
+    - **securityContext.runAsGroup**: 容器裡的每個程序會使用這個 group ID 來執行。這個群組需擁有存取掛載的 NFS 資料目錄路徑的權限。我們用此來給予程序有限的權限，不然預設 Kubernetes 會使用 root 群組執行程序。
+    - **image.versionTag**: Lighthouse 用戶端版本
+    - **beacon.dataVolumePath**: NFS 上的 beacon 資料目錄路徑
+    - **beacon.eth1Endpoints**: 以太坊 1.0 節點網址
     - **validatorClients.validatorClient1.dataVolumePath**: NFS 上的 validator 用戶端資料目錄路徑
-    - **validatorClients.validatorClient1.walletVolumePath**: NFS 上的錢包資料目錄路徑
-    - **validatorClients.validatorClient1.walletPassword**: 錢包密碼
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Teku" >}}
+
+2. 更改 [teku/helm/values.yaml](https://github.com/lumostone/eth2xk8s/blob/master/teku/helm/values.yaml) 的值
+
+    建議閱讀`values.yaml`的每個變數及說明，確認是否更改預設值。以下列出安裝 Helm Chart 前必須更改的變數：
+    - **nfs.serverIp**: NFS 伺服器 IP 地址
+    - **securityContext.runAsUse**: 容器裡的每個程序會使用這個 user ID 來執行。這個使用者需擁有存取掛載的 NFS 資料目錄路徑的權限。
+    - **securityContext.runAsGroup**: 容器裡的每個程序會使用這個 group ID 來執行。這個群組需擁有存取掛載的 NFS 資料目錄路徑的權限。我們用此來給予程序有限的權限，不然預設 Kubernetes 會使用 root 群組執行程序。
+    - **image.versionTag**: Teku 用戶端版本
+    - **beacon.dataVolumePath**: NFS 上的 beacon 資料目錄路徑
+    - **beacon.eth1Endpoint**: 以太坊 1.0 節點網址
+    - **validatorClients.validatorClient1**
+      - **.dataVolumePath**: NFS 上的 validator 用戶端資料目錄路徑
+      - **.validatorKeysVolumePath**: NFS 上的 validator 金鑰資料目錄路徑
+      - **.validatorKeyPasswordsVolumePath**: NFS 上的 validator 金鑰密碼資料目錄路徑
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Nimbus" >}}
+
+2. 更改 [nimbus/helm/values.yaml](https://github.com/lumostone/eth2xk8s/blob/master/nimbus/helm/values.yaml) 的值
+
+    建議閱讀`values.yaml`的每個變數及說明，確認是否更改預設值。以下列出安裝 Helm Chart 前必須更改的變數：
+    - **nfs.serverIp**: NFS 伺服器 IP 地址
+    - **securityContext.runAsUse**: 容器裡的每個程序會使用這個 user ID 來執行。這個使用者需擁有存取掛載的 NFS 資料目錄路徑的權限。
+    - **securityContext.runAsGroup**: 容器裡的每個程序會使用這個 group ID 來執行。這個群組需擁有存取掛載的 NFS 資料目錄路徑的權限。我們用此來給予程序有限的權限，不然預設 Kubernetes 會使用 root 群組執行程序。
+    - **image.versionTag**: Nimbus 用戶端版本
+    - **nimbus.clients.client1**
+      - **.web3Provider** and **.fallbackWeb3Providers**: 以太坊 1.0 節點網址
+      - **.dataVolumePath**: NFS 上的 beacon 資料目錄路徑
+      - **.validatorsVolumePath**: NFS 上的 validator 金鑰存放區資料目錄路徑
+      - **.secretsVolumePath**: NFS 上的 validator 金鑰存放區秘密資料目錄路徑
+
+{{< /toggle-panel >}}
 
 ### 使用 Helm Chart 安裝 Prysm
 
-Kubernetes 使用 [namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) 來作命名及資源區隔及存取限制。我們使用`prysm`當作 Prysm 用戶端的 namespace。
+Helm 使用 [releases](https://helm.sh/docs/glossary/#release) 來追蹤 chart 的安裝紀錄。在這篇教學裡，我們用`eth2xk8s`當作我們的 release 名字，你也可以改成其他你想要的名字。我們會在安裝 Helm Chart 時指定要安裝在什麼 [namespace](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) 內（Kubernetes 使用 namespace 來區隔資源及限制存取）。
 
-Helm 使用 [releases](https://helm.sh/docs/glossary/#release) 來追蹤 chart 的安裝紀錄。在這篇教學裡，我們用`eth2xk8s`當作我們的 release 名字，你也可以改成其他你想要的名字。
+{{< toggle-panel name="Prysm" active=true >}}
+我們使用`prysm`當作 Prysm 用戶端的 namespace。
 
 在主要節點上：
 
@@ -466,7 +662,83 @@ Helm 使用 [releases](https://helm.sh/docs/glossary/#release) 來追蹤 chart �
     microk8s helm3 get manifest eth2xk8s -nprysm
     ```
 
+{{< /toggle-panel >}}
+{{< toggle-panel name="Lighthouse" >}}
+我們使用`lighthouse`當作 Lighthouse 用戶端的 namespace。
+
+在主要節點上：
+
+1. 創造一個 namespace
+
+    ```bash
+    microk8s kubectl create namespace lighthouse
+    ```
+
+2. 安裝 Lighthouse 用戶端
+
+    ```bash
+    microk8s helm3 install eth2xk8s ./lighthouse/helm -nlighthouse
+    ```
+
+3. 檢查部署設定
+
+    ```bash
+    microk8s helm3 get manifest eth2xk8s -nlighthouse
+    ```
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Teku" >}}
+我們使用`teku`當作 Teku 用戶端的 namespace。
+
+在主要節點上：
+
+1. 創造一個 namespace
+
+    ```bash
+    microk8s kubectl create namespace teku
+    ```
+
+2. 安裝 Teku 用戶端
+
+    ```bash
+    microk8s helm3 install eth2xk8s ./teku/helm -nteku
+    ```
+
+3. 檢查部署設定
+
+    ```bash
+    microk8s helm3 get manifest eth2xk8s -nteku
+    ```
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Nimbus" >}}
+我們使用`nimbus`當作 Nimbus 用戶端的 namespace。
+
+在主要節點上：
+
+1. 創造一個 namespace
+
+    ```bash
+    microk8s kubectl create namespace nimbus
+    ```
+
+2. 安裝 Nimbus 用戶端
+
+    ```bash
+    microk8s helm3 install eth2xk8s ./nimbus/helm -nnimbus
+    ```
+
+3. 檢查部署設定
+
+    ```bash
+    microk8s helm3 get manifest eth2xk8s -nnimbus
+    ```
+
+{{< /toggle-panel >}}
+
 ### 檢查用戶端狀態
+
+{{< toggle-panel name="Prysm" active=true >}}
 
 1. 檢查部署狀態
 
@@ -488,19 +760,104 @@ Helm 使用 [releases](https://helm.sh/docs/glossary/#release) 來追蹤 chart �
     microk8s kubectl logs -f -nprysm -l app=validator-client-1
     ```
 
-    如果想檢查其他的 validator用戶端，可以將`-l app=<validator client name>`更改成在`values.yaml`設定的其他 validator 用戶端的名字，以 validator-client-2 為例
+    如果想檢查其他的 validator 用戶端，可以將`-l app=<validator client name>`更改成在`values.yaml`設定的其他 validator 用戶端的名字，以 validator-client-2 為例
 
     ```bash
     microk8s kubectl logs -f -nprysm -l app=validator-client-2
     ```
 
+{{< /toggle-panel >}}
+{{< toggle-panel name="Lighthouse" >}}
+
+1. 檢查部署狀態
+
+    ```bash
+    microk8s kubectl get pod -nlighthouse -w
+    ```
+
+    這個指令會持續監控狀態變化，我們只需等到 beacon 及 validator 用戶端都變成 Running 狀態即可。
+
+2. 檢查 beacon 的執行記錄
+
+    ```bash
+    microk8s kubectl logs -f -nlighthouse -l app=beacon
+    ```
+
+3. 檢查 validator 用戶端的執行記錄
+
+    ```bash
+    microk8s kubectl logs -f -nlighthouse -l app=validator-client-1
+    ```
+
+    如果想檢查其他的 validator 用戶端，可以將`-l app=<validator client name>`更改成在`values.yaml`設定的其他 validator 用戶端的名字，以 validator-client-2 為例
+
+    ```bash
+    microk8s kubectl logs -f -nlighthouse -l app=validator-client-2
+    ```
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Teku" >}}
+
+1. 檢查部署狀態
+
+    ```bash
+    microk8s kubectl get pod -nteku -w
+    ```
+
+    這個指令會持續監控狀態變化，我們只需等到 beacon 及 validator 用戶端都變成 Running 狀態即可。
+
+2. 檢查 beacon 的執行記錄
+
+    ```bash
+    microk8s kubectl logs -f -nteku -l app=beacon
+    ```
+
+3. 檢查 validator 用戶端的執行記錄
+
+    ```bash
+    microk8s kubectl logs -f -nteku -l app=validator-client-1
+    ```
+
+    如果想檢查其他的 validator 用戶端，可以將`-l app=<validator client name>`更改成在`values.yaml`設定的其他 validator 用戶端的名字，以 validator-client-2 為例
+
+    ```bash
+    microk8s kubectl logs -f -nteku -l app=validator-client-2
+    ```
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Nimbus" >}}
+
+1. 檢查部署狀態
+
+    ```bash
+    microk8s kubectl get pod -nnimbus -w
+    ```
+
+    這個指令會持續監控狀態變化，我們只需等到用戶端都變成 Running 狀態即可。
+
+2. 檢查 Nimbus 用戶端的執行記錄
+
+    ```bash
+    microk8s kubectl logs -f -nnimbus -l app=nimbus-1
+    ```
+
+    如果想檢查其他的 Nimbus 用戶端，可以將`-l app=<nimbus client name>`更改成在`values.yaml`設定的其他 Nimbus 用戶端的名字，以 nimbus-2 為例
+
+    ```bash
+    microk8s kubectl logs -f -nnimbus -l app=nimbus-2
+    ```
+
+{{< /toggle-panel >}}
+
 ### 使用 Helm Chart 更新 Prysm 版本
 
 以太坊 2.0 用戶端的新版本推出速度很快，我們應該盡快更新用戶端版本來獲得最新的 bug fixes 和功能。為了簡化版本跟軟體部署的管理，我們推薦用 Helm 來更新版本：
 
+{{< toggle-panel name="Prysm" active=true >}}
+
 1. 到 [Prysm Github 版本釋出頁面](https://github.com/prysmaticlabs/prysm/releases)查看最新版本
 
-2. 將`values.yaml`中的 **image.version** 改成最新版本（例如 `v1.3.4`）並儲存`values.yaml`
+2. 將`values.yaml`中的 `image.versionTag` 改成最新版本（例如`v1.3.4`）並儲存`values.yaml`
 
 3. 執行以下 Helm 指令更新用戶端
 
@@ -514,11 +871,72 @@ Helm 使用 [releases](https://helm.sh/docs/glossary/#release) 來追蹤 chart �
     microk8s helm3 get manifest eth2xk8s -nprysm
     ```
 
+{{< /toggle-panel >}}
+{{< toggle-panel name="Lighthouse" >}}
+
+1. 到 [Lighthouse Github 版本釋出頁面](https://github.com/sigp/lighthouse/releases)查看最新版本
+
+2. 將`values.yaml`中的 `image.versionTag` 改成最新版本（例如`v1.3.0`）並儲存`values.yaml`
+
+3. 執行以下 Helm 指令更新用戶端
+
+    ```bash
+    microk8s helm3 upgrade eth2xk8s ./lighthouse/helm -nlighthouse
+    ```
+
+4. 檢查部署設定，確認用戶端已更新成新版本
+
+    ```bash
+    microk8s helm3 get manifest eth2xk8s -nlighthouse
+    ```
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Teku" >}}
+
+1. 到 [Teku Github 版本釋出頁面](https://github.com/ConsenSys/teku/releases)查看最新版本
+
+2. 將`values.yaml`中的 `image.versionTag` 改成最新版本（例如`21.4.1`）並儲存`values.yaml`
+
+3. 執行以下 Helm 指令更新用戶端
+
+    ```bash
+    microk8s helm3 upgrade eth2xk8s ./teku/helm -nteku
+    ```
+
+4. 檢查部署設定，確認用戶端已更新成新版本
+
+    ```bash
+    microk8s helm3 get manifest eth2xk8s -nteku
+    ```
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Nimbus" >}}
+
+1. 到 [Nimbus Github 版本釋出頁面](https://github.com/status-im/nimbus-eth2/releases)查看最新版本
+
+2. 將`values.yaml`中的 `image.versionTag` 改成最新版本（例如`amd64-v1.2.`）並儲存`values.yaml`
+
+3. 執行以下 Helm 指令更新用戶端
+
+    ```bash
+    microk8s helm3 upgrade eth2xk8s ./nimbus/helm -nnimbus
+    ```
+
+4. 檢查部署設定，確認用戶端已更新成新版本
+
+    ```bash
+    microk8s helm3 get manifest eth2xk8s -nnimbus
+    ```
+
+{{< /toggle-panel >}}
+
 5. 依照「[檢查用戶端狀態](#檢查用戶端狀態)」章節檢查用戶端是否正常執行
 
 ### 使用 Helm 回溯版本
 
-如果版本回溯不牽涉資料庫 schema 變動的話，使用 Helm 回溯版本就跟更新一樣直覺。以下是範例步驟及指令：
+如果版本回溯前需要先還原資料庫 schema，可以參照「[使用 Helm 回溯版本（如果資料庫 Schema 有更動)](#使用-helm-回溯版本如果資料庫-schema-有更動)」章節。如果版本回溯不牽涉資料庫 schema 變動的話，使用 Helm 回溯版本就跟更新一樣直覺。以下是範例步驟及指令：
+
+{{< toggle-panel name="Prysm" active=true >}}
 
 1. 使用`helm history`指令找出並記下想要回溯到的版本號碼
 
@@ -534,13 +952,70 @@ Helm 使用 [releases](https://helm.sh/docs/glossary/#release) 來追蹤 chart �
 
 3. 接著依照「[檢查用戶端狀態](#檢查用戶端狀態)」章節檢查部署設定以及用戶端是否正常執行。
 
-如果版本回溯前需要先還原資料庫 schema，可以參照「[使用 Helm 回溯版本（如果資料庫 Schema 有更動)](#使用-helm-回溯版本如果資料庫-schema-有更動)」章節。
-
 某些情況下有可能沒辦法回溯到之前的版本（[例子](https://docs.prylabs.network/docs/prysm-usage/staying-up-to-date/#downgrading-between-major-version-bumps)），在回溯前記得先確認用戶端相關文件。
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Lighthouse" >}}
+
+1. 使用`helm history`指令找出並記下想要回溯到的版本號碼
+
+    ```bash
+    microk8s helm3 history eth2xk8s -nlighthouse
+    ```
+
+2. 回溯到指定版本（以下指令假設我們要回溯到版本 4）
+
+    ```bash
+    microk8s helm3 rollback eth2xk8s 4 -nlighthouse
+    ```
+
+3. 接著依照「[檢查用戶端狀態](#檢查用戶端狀態)」章節檢查部署設定以及用戶端是否正常執行。
+
+某些情況下有可能沒辦法回溯到之前的版本，在回溯前記得先確認用戶端相關文件。
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Teku" >}}
+
+1. 使用`helm history`指令找出並記下想要回溯到的版本號碼
+
+    ```bash
+    microk8s helm3 history eth2xk8s -nteku
+    ```
+
+2. 回溯到指定版本（以下指令假設我們要回溯到版本 4）
+
+    ```bash
+    microk8s helm3 rollback eth2xk8s 4 -nteku
+    ```
+
+3. 接著依照「[檢查用戶端狀態](#檢查用戶端狀態)」章節檢查部署設定以及用戶端是否正常執行。
+
+某些情況下有可能沒辦法回溯到之前的版本，在回溯前記得先確認用戶端相關文件。
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Nimbus" >}}
+
+1. 使用`helm history`指令找出並記下想要回溯到的版本號碼
+
+    ```bash
+    microk8s helm3 history eth2xk8s -nnimbus
+    ```
+
+2. 回溯到指定版本（以下指令假設我們要回溯到版本 4）
+
+    ```bash
+    microk8s helm3 rollback eth2xk8s 4 -nnimbus
+    ```
+
+3. 接著依照「[檢查用戶端狀態](#檢查用戶端狀態)」章節檢查部署設定以及用戶端是否正常執行。
+
+某些情況下有可能沒辦法回溯到之前的版本，在回溯前記得先確認用戶端相關文件。
+
+{{< /toggle-panel >}}
 
 ## 結論
 
-感謝你的閱讀！我們希望這篇文章能夠幫助想要使用 Kubernetes 來做以太坊 2.0 staking 的你。我們會繼續製作相關教學，之後我們也會開發給其他以太坊 2.0 用戶端的 Helm Chart。敬請期待！
+感謝你的閱讀！我們希望這篇文章能夠幫助想要使用 Kubernetes 來做以太坊 2.0 staking 的你。我們會繼續製作相關教學。敬請期待！
 
 ## 有任何建議或是疑問嗎？
 
@@ -560,20 +1035,74 @@ Helm 使用 [releases](https://helm.sh/docs/glossary/#release) 來追蹤 chart �
 
 2. 接著可以執行`kubectl top`指令來得到用量資訊，下面兩個例子分別會得到 beacon 及 validator 用戶端的用量。
 
-    ```bash
-    microk8s kubectl top pod -l app=beacon
-    microk8s kubectl top pod -l app=validator-client-1
-    ```
+{{< toggle-panel name="Prysm" active=true >}}
+
+```bash
+microk8s kubectl top pod -l app=beacon
+microk8s kubectl top pod -l app=validator-client-1
+```
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Lighthouse" >}}
+
+```bash
+microk8s kubectl top pod -l app=beacon
+microk8s kubectl top pod -l app=validator-client-1
+```
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Teku" >}}
+
+```bash
+microk8s kubectl top pod -l app=beacon
+microk8s kubectl top pod -l app=validator-client-1
+```
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Nimbus" >}}
+
+```bash
+microk8s kubectl top pod -l app=nimbus-1
+```
+
+{{< /toggle-panel >}}
 
 ### 解除安裝 Helm Chart
 
-如果想要停止執行以及移除 Prysm，可以執行以下指令來移除整個 Helm Chart：
+如果想要停止執行以及移除以太坊 2.0 用戶端，可以執行以下指令來移除整個 Helm Chart：
+
+{{< toggle-panel name="Prysm" active=true >}}
 
 ```bash
 microk8s helm3 uninstall eth2xk8s -nprysm
 ```
 
+{{< /toggle-panel >}}
+{{< toggle-panel name="Lighthouse" >}}
+
+```bash
+microk8s helm3 uninstall eth2xk8s -nlighthouse
+```
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Teku" >}}
+
+```bash
+microk8s helm3 uninstall eth2xk8s -nteku
+```
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Nimbus" >}}
+
+```bash
+microk8s helm3 uninstall eth2xk8s -nnimbus
+```
+
+{{< /toggle-panel >}}
+
 ### 使用 Helm 回溯版本（如果資料庫 Schema 有更動）
+
+{{< toggle-panel name="Prysm" active=true >}}
 
 以 [Prysm v1.3.0 版本](https://github.com/prysmaticlabs/prysm/releases/tag/v1.3.0)為例，如果想要回溯至 v1.2.x，我們需要在回溯前先跑一個腳本來還原 v1.3.0 帶來的資料庫 schema 變動。所以如果我們照著「[使用 Helm 回溯版本](#使用-helm-回溯版本)」的步驟執行指令，在用 Helm 改變 Prsym 版本成 v1.2.2 之後，所有的 pods 會馬上重啟，但 Prysm 可能會因為資料庫 schema 只適用於 v1.3.0 版本而無法正常啟動。
 
@@ -619,3 +1148,140 @@ microk8s helm3 uninstall eth2xk8s -nprysm
     ```bash
     microk8s kubectl get pod -nprysm -w
     ```
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Lighthouse" >}}
+
+如果在新版本有 schema 變動的情況下，想要回溯至先前的版本，我們有可能可以使用用戶端團隊提供的工具來還原 schema 變動。所以如果我們照著「[使用 Helm 回溯版本](#使用-helm-回溯版本)」的步驟執行指令，在用 Helm 改變版本之後，所有的 pods 會馬上重啟，但用戶端可能會因為資料庫 schema 只適用於新版本而無法正常啟動。
+
+要解決這個問題，我們可以利用 Kubernetes 暫時把 pod 的數量降成 0。在此期間，不會有任何用戶端能夠執行，我們也就能趁機復原新版本帶來的 schema 變動，然後再恢復 pod 的數量，最後再回溯版本。以下是範例步驟及指令：
+
+1. 在還原版本前，用以下指令先把 pod 的數量降成 0
+
+    只調整 beacon：
+
+    ```bash
+    microk8s kubectl scale deployments/beacon -nlighthouse --replicas=0
+    ```
+
+    如果 schema 變動只影響 validator，我們可以只調整 validator 用戶端：
+
+    ```bash
+    microk8s kubectl scale deployments/validator-client-1 -nlighthouse --replicas=0
+    ```
+
+2. 確認所有 pod 都已停止
+
+    ```bash
+    microk8s kubectl get pod -nlighthouse -w
+    ```
+
+3. 復原 schema 變動
+
+4. 回溯到版本 4
+
+    ```bash
+    microk8s helm3 rollback eth2xk8s 4 -nlighthouse
+    ```
+
+5. 恢復 beacon 及 validator 用戶端 pod 的數量
+
+    ```bash
+    microk8s kubectl scale deployments/beacon -nlighthouse --replicas=1
+    microk8s kubectl scale deployments/validator-client-1 -nlighthouse --replicas=1
+    ```
+
+6. 確認所有 pod 都恢復執行
+
+    ```bash
+    microk8s kubectl get pod -nlighthouse -w
+    ```
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Teku" >}}
+
+如果在新版本有 schema 變動的情況下，想要回溯至先前的版本，我們有可能可以使用用戶端團隊提供的工具來還原 schema 變動。所以如果我們照著「[使用 Helm 回溯版本](#使用-helm-回溯版本)」的步驟執行指令，在用 Helm 改變版本之後，所有的 pods 會馬上重啟，但用戶端可能會因為資料庫 schema 只適用於新版本而無法正常啟動。
+
+要解決這個問題，我們可以利用 Kubernetes 暫時把 pod 的數量降成 0。在此期間，不會有任何用戶端能夠執行，我們也就能趁機復原新版本帶來的 schema 變動，然後再恢復 pod 的數量，最後再回溯版本。以下是範例步驟及指令：
+
+1. 在還原版本前，用以下指令先把 pod 的數量降成 0
+
+    只調整 beacon：
+
+    ```bash
+    microk8s kubectl scale deployments/beacon -nteku --replicas=0
+    ```
+
+    如果 schema 變動只影響 validator，我們可以只調整 validator 用戶端：
+
+    ```bash
+    microk8s kubectl scale deployments/validator-client-1 -nteku --replicas=0
+    ```
+
+2. 確認所有 pod 都已停止
+
+    ```bash
+    microk8s kubectl get pod -nteku -w
+    ```
+
+3. 復原 schema 變動
+
+4. 回溯到版本 4
+
+    ```bash
+    microk8s helm3 rollback eth2xk8s 4 -nteku
+    ```
+
+5. 恢復 beacon 及 validator 用戶端 pod 的數量
+
+    ```bash
+    microk8s kubectl scale deployments/beacon -nteku --replicas=1
+    microk8s kubectl scale deployments/validator-client-1 -nteku --replicas=1
+    ```
+
+6. 確認所有 pod 都恢復執行
+
+    ```bash
+    microk8s kubectl get pod -nteku -w
+    ```
+
+{{< /toggle-panel >}}
+{{< toggle-panel name="Nimbus" >}}
+
+如果在新版本有 schema 變動的情況下，想要回溯至先前的版本，我們有可能可以使用用戶端團隊提供的工具來還原 schema 變動。所以如果我們照著「[使用 Helm 回溯版本](#使用-helm-回溯版本)」的步驟執行指令，在用 Helm 改變版本之後，所有的 pods 會馬上重啟，但用戶端可能會因為資料庫 schema 只適用於新版本而無法正常啟動。
+
+要解決這個問題，我們可以利用 Kubernetes 暫時把 pod 的數量降成 0。在此期間，不會有任何用戶端能夠執行，我們也就能趁機復原新版本帶來的 schema 變動，然後再恢復 pod 的數量，最後再回溯版本。以下是範例步驟及指令：
+
+1. 在還原版本前，用以下指令先把 pod 的數量降成 0
+
+    ```bash
+    microk8s kubectl scale deployments/nimbus-1 -nnimbus --replicas=0
+    ```
+
+2. 確認所有 pod 都已停止
+
+    ```bash
+    microk8s kubectl get pod -nnimbus -w
+    ```
+
+3. 復原 schema 變動
+
+4. 回溯到版本 4
+
+    ```bash
+    microk8s helm3 rollback eth2xk8s 4 -nnimbus
+    ```
+
+5. 恢復用戶端 pod 的數量
+
+    ```bash
+    microk8s kubectl scale deployments/nimbus-1 -nnimbus --replicas=1
+    ```
+
+6. 確認所有 pod 都恢復執行
+
+    ```bash
+    microk8s kubectl get pod -nnimbus -w
+    ```
+
+{{< /toggle-panel >}}
