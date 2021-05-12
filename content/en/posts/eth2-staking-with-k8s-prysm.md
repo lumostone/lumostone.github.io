@@ -428,10 +428,10 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
     - **nfs.user**: The user ID will be used to run all processes in the container. The user should have the access to the mounted NFS volume.
     - **nfs.group**: The group ID will be used to run all processes in the container. The group should have the access to the mounted NFS volume. We use the group ID to grant limited file access to the processes so it won't use the root group directly.
     - **image.version**: Prysm client version.
-    - **beacon.dataVolumePath**: The path to the data directory on the NFS for the beacon node.
+    - **beacon.dataDirPath**: The path to the data directory on the NFS for the beacon node.
     - **beacon.web3Provider** and **beacon.fallbackWeb3Providers**: Ethereum 1.0 node endpoints.
-    - **validatorClients.validatorClient1.dataVolumePath**: The path to the data directory on the NFS for the validator client.
-    - **validatorClients.validatorClient1.walletVolumePath**: The path to the data directory on the NFS for the wallet.
+    - **validatorClients.validatorClient1.dataDirPath**: The path to the data directory on the NFS for the validator client.
+    - **validatorClients.validatorClient1.walletDirPath**: The path to the wallet directory on the NFS for the validator client.
     - **validatorClients.validatorClient1.walletPassword**: The wallet password.
 
 ### Install Prysm via Helm Chart
