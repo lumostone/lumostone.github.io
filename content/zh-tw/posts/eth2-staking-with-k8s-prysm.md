@@ -430,10 +430,10 @@ sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
     - **nfs.user**: 容器（container）裡的每個程序（process）會使用這個 user ID 來執行。這個使用者需擁有存取掛載的 NFS 資料目錄路徑的權限。
     - **nfs.group**: 容器裡的每個程序會使用這個 group ID 來執行。這個群組需擁有存取掛載的 NFS 資料目錄路徑的權限。我們用此來給予程序有限的權限，不然預設 Kubernetes 會使用 root 群組執行程序。
     - **image.version**: Prysm 用戶端版本
-    - **beacon.dataVolumePath**: NFS 上的 beacon 資料目錄路徑
+    - **beacon.dataDirPath**: NFS 上的 beacon 資料目錄路徑
     - **beacon.web3Provider** 及 **beacon.fallbackWeb3Providers**: 以太坊 1.0 節點網址
-    - **validatorClients.validatorClient1.dataVolumePath**: NFS 上的 validator 用戶端資料目錄路徑
-    - **validatorClients.validatorClient1.walletVolumePath**: NFS 上的錢包資料目錄路徑
+    - **validatorClients.validatorClient1.dataDirPath**: NFS 上的 validator 用戶端資料目錄路徑
+    - **validatorClients.validatorClient1.walletDirPath**: NFS 上的錢包資料目錄路徑
     - **validatorClients.validatorClient1.walletPassword**: 錢包密碼
 
 ### 使用 Helm Chart 安裝 Prysm
