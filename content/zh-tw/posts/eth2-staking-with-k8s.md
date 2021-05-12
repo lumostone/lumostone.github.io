@@ -560,11 +560,11 @@ sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
     - **securityContext.runAsUse**: 容器裡的每個程序會使用這個 user ID 來執行。這個使用者需擁有存取掛載的 NFS 資料目錄路徑的權限。
     - **securityContext.runAsGroup**: 容器裡的每個程序會使用這個 group ID 來執行。這個群組需擁有存取掛載的 NFS 資料目錄路徑的權限。我們用此來給予程序有限的權限，不然預設 Kubernetes 會使用 root 群組執行程序。
     - **image.versionTag**: Prysm 用戶端版本
-    - **beacon.dataVolumePath**: NFS 上的 beacon 資料目錄路徑
+    - **beacon.dataDirPath**: NFS 上的 beacon 資料目錄路徑
     - **beacon.eth1Endpoints**: 以太坊 1.0 節點網址
     - **validatorClients.validatorClient1**
-      - **.dataVolumePath**: NFS 上的 validator 用戶端資料目錄路徑
-      - **.walletVolumePath**: NFS 上的錢包資料目錄路徑
+      - **.dataDirPath**: NFS 上的 validator 用戶端資料目錄路徑
+      - **.walletDirPath**: NFS 上的錢包資料目錄路徑
       - **.walletPassword**: 錢包密碼
 
 {{< /toggle-panel >}}
@@ -577,9 +577,9 @@ sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
     - **securityContext.runAsUse**: 容器裡的每個程序會使用這個 user ID 來執行。這個使用者需擁有存取掛載的 NFS 資料目錄路徑的權限。
     - **securityContext.runAsGroup**: 容器裡的每個程序會使用這個 group ID 來執行。這個群組需擁有存取掛載的 NFS 資料目錄路徑的權限。我們用此來給予程序有限的權限，不然預設 Kubernetes 會使用 root 群組執行程序。
     - **image.versionTag**: Lighthouse 用戶端版本
-    - **beacon.dataVolumePath**: NFS 上的 beacon 資料目錄路徑
+    - **beacon.dataDirPath**: NFS 上的 beacon 資料目錄路徑
     - **beacon.eth1Endpoints**: 以太坊 1.0 節點網址
-    - **validatorClients.validatorClient1.dataVolumePath**: NFS 上的 validator 用戶端資料目錄路徑
+    - **validatorClients.validatorClient1.dataDirPath**: NFS 上的 validator 用戶端資料目錄路徑
 
 {{< /toggle-panel >}}
 {{< toggle-panel name="Teku" >}}
@@ -591,12 +591,12 @@ sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
     - **securityContext.runAsUse**: 容器裡的每個程序會使用這個 user ID 來執行。這個使用者需擁有存取掛載的 NFS 資料目錄路徑的權限。
     - **securityContext.runAsGroup**: 容器裡的每個程序會使用這個 group ID 來執行。這個群組需擁有存取掛載的 NFS 資料目錄路徑的權限。我們用此來給予程序有限的權限，不然預設 Kubernetes 會使用 root 群組執行程序。
     - **image.versionTag**: Teku 用戶端版本
-    - **beacon.dataVolumePath**: NFS 上的 beacon 資料目錄路徑
+    - **beacon.dataDirPath**: NFS 上的 beacon 資料目錄路徑
     - **beacon.eth1Endpoints**: 以太坊 1.0 節點網址
     - **validatorClients.validatorClient1**
-      - **.dataVolumePath**: NFS 上的 validator 用戶端資料目錄路徑
-      - **.validatorKeysVolumePath**: NFS 上的 validator 金鑰資料目錄路徑
-      - **.validatorKeyPasswordsVolumePath**: NFS 上的 validator 金鑰密碼資料目錄路徑
+      - **.dataDirPath**: NFS 上的 validator 用戶端資料目錄路徑
+      - **.validatorKeysDirPath**: NFS 上的 validator 金鑰資料目錄路徑
+      - **.validatorKeyPasswordsDirPath**: NFS 上的 validator 金鑰密碼資料目錄路徑
 
 {{< /toggle-panel >}}
 {{< toggle-panel name="Nimbus" >}}
@@ -610,9 +610,9 @@ sudo chown -R 1001:2000 /data # you can pick other user ID and group ID
     - **image.versionTag**: Nimbus 用戶端版本
     - **nimbus.clients.client1**
       - **.eth1Endpoints**: 以太坊 1.0 節點網址
-      - **.dataVolumePath**: NFS 上的 beacon 資料目錄路徑
-      - **.validatorsVolumePath**: NFS 上的 validator 金鑰存放區資料目錄路徑
-      - **.secretsVolumePath**: NFS 上的 validator 金鑰存放區秘密資料目錄路徑
+      - **.dataDirPath**: NFS 上的 beacon 資料目錄路徑
+      - **.validatorsDirPath**: NFS 上的 validator 金鑰存放區資料目錄路徑
+      - **.secretsDirPath**: NFS 上的 validator 金鑰存放區秘密資料目錄路徑
 
 {{< /toggle-panel >}}
 

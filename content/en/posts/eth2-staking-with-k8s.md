@@ -560,11 +560,11 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
     - **securityContext.runAsUser**: The user ID will be used to run all processes in the container. The user should have the access to the mounted NFS volume.
     - **securityContext.runAsGroup**: The group ID will be used to run all processes in the container. The group should have the access to the mounted NFS volume. We use the group ID to grant limited file access to the processes so it won't use the root group directly.
     - **image.versionTag**: Prysm client version.
-    - **beacon.dataVolumePath**: The path to the data directory on the NFS for the beacon node.
+    - **beacon.dataDirPath**: The path to the data directory on the NFS for the beacon node.
     - **beacon.eth1Endpoints**: Ethereum 1.0 node endpoints.
     - **validatorClients.validatorClient1**
-      - **.dataVolumePath**: The path to the data directory on the NFS for the validator client.
-      - **.walletVolumePath**: The path to the data directory on the NFS for the wallet.
+      - **.dataDirPath**: The path to the data directory on the NFS for the validator client.
+      - **.walletDirPath**: The path to the wallet directory on the NFS for the validator client.
       - **.walletPassword**: The wallet password.
 
 {{< /toggle-panel >}}
@@ -577,9 +577,9 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
     - **securityContext.runAsUser**: The user ID will be used to run all processes in the container. The user should have the access to the mounted NFS volume.
     - **securityContext.runAsGroup**: The group ID will be used to run all processes in the container. The group should have the access to the mounted NFS volume. We use the group ID to grant limited file access to the processes so it won't use the root group directly.
     - **image.versionTag**: Lighthouse client version.
-    - **beacon.dataVolumePath**: The path to the data directory on the NFS for the beacon node.
+    - **beacon.dataDirPath**: The path to the data directory on the NFS for the beacon node.
     - **beacon.eth1Endpoints**: Ethereum 1.0 node endpoints.
-    - **validatorClients.validatorClient1.dataVolumePath**: The path to the data directory on the NFS for the validator client.
+    - **validatorClients.validatorClient1.dataDirPath**: The path to the data directory on the NFS for the validator client.
 
 {{< /toggle-panel >}}
 {{< toggle-panel name="Teku" >}}
@@ -591,12 +591,12 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
     - **securityContext.runAsUser**: The user ID will be used to run all processes in the container. The user should have the access to the mounted NFS volume.
     - **securityContext.runAsGroup**: The group ID will be used to run all processes in the container. The group should have the access to the mounted NFS volume. We use the group ID to grant limited file access to the processes so it won't use the root group directly.
     - **image.versionTag**: Teku client version.
-    - **beacon.dataVolumePath**: The path to the data directory on the NFS for the beacon node.
+    - **beacon.dataDirPath**: The path to the data directory on the NFS for the beacon node.
     - **beacon.eth1Endpoints**: Ethereum 1.0 node endpoints.
     - **validatorClients.validatorClient1**
-      - **.dataVolumePath**: The path to the data directory on the NFS for the validator client.
-      - **.validatorKeysVolumePath**: The path to the data directory on the NFS for the validator keys.
-      - **.validatorKeyPasswordsVolumePath**: The path to the data directory on the NFS for the validator key passwords.
+      - **.dataDirPath**: The path to the data directory on the NFS for the validator client.
+      - **.validatorKeysDirPath**: The path to the data directory on the NFS for the validator keys.
+      - **.validatorKeyPasswordsDirPath**: The path to the data directory on the NFS for the validator key passwords.
 
 {{< /toggle-panel >}}
 {{< toggle-panel name="Nimbus" >}}
@@ -610,9 +610,9 @@ We use Helm to manage packages and releases in this guide. You can also use Kube
     - **image.versionTag**: Nimbus client version.
     - **nimbus.clients.client1**
       - **.eth1Endpoints**: Ethereum 1.0 node endpoints.
-      - **.dataVolumePath**: The path to the data directory on the NFS for the beacon node.
-      - **.validatorsVolumePath**: The path to the data directory on the NFS for the validator keystores.
-      - **.secretsVolumePath**: The path to the data directory on the NFS for the validator keystore passwords.
+      - **.dataDirPath**: The path to the data directory on the NFS for the beacon node.
+      - **.validatorsDirPath**: The path to the data directory on the NFS for the validator keystores.
+      - **.secretsDirPath**: The path to the data directory on the NFS for the validator keystore passwords.
 
 {{< /toggle-panel >}}
 
