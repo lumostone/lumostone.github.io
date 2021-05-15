@@ -1,13 +1,13 @@
 ---
-title: "Guide to Ethereum 2.0 Staking with Kubernetes"
-date: 2021-05-07T23:53:09Z
-draft: true
+title: "Eth2xK8s: Ethereum 2.0 Staking with Kubernetes"
+date: 2021-05-15T13:24:09Z
+draft: false
 tags: ["ethereum", "kubernetes", "tutorial"]
 aliases: 
     - /en/eth2-staking-with-k8s-prysm/
 ---
 
-> On May 10, 2021, this guide has been updated to include Lighthouse, Teku and Nimbus clients along with Prysm, the Ethereum 2.0 client we started with.
+> On May 15, 2021, this guide has been updated to include Lighthouse, Teku and Nimbus clients along with Prysm, the Ethereum 2.0 client we started with.
 
 ## Why Stake with Kubernetes?
 
@@ -103,11 +103,6 @@ NFS:
 
 ## Walkthrough
 
-### Choose Your Ethereum 2.0 Client
-
-The content of the following guide will be changed based on your client selection. Please choose the one your prefer before continue reading:
-{{< content-toggle toggleTotal="4" toggle1="Prysm" toggle2="Lighthouse" toggle3="Teku" toggle4="Nimbus" active="toggle1" >}}
-
 ### Overview
 
 In this walkthrough, we will set up a Kubernetes cluster and a NFS server and install the beacon node and the validator clients. We put all the machines in the same private subnet and have assigned a static private IP for each machine. Here are the network configurations we use throughout this guide for the three machines:
@@ -189,6 +184,11 @@ Perform the following steps on all the machines:
     ```bash
     chronyc tracking
     ```
+
+### Choose Your Ethereum 2.0 Client
+
+The content of the following guide will be changed based on your client selection. Please choose the one your prefer before continue reading:
+{{< content-toggle toggleTotal="4" toggle1="Prysm" toggle2="Lighthouse" toggle3="Teku" toggle4="Nimbus" active="toggle1" >}}
 
 ### Configure Firewall
 
@@ -1052,12 +1052,13 @@ microk8s kubectl top pod -l app=nimbus-1
 
 ### Uninstall Helm Chart
 
-If you want to stop and uninstall the Ethereum 2.0 client, you can uninstall the Helm Chart with the following command:
+If you want to stop and uninstall the Ethereum 2.0 client, you can uninstall the Helm Chart and delete the namespace with the following command:
 
 {{< toggle-panel name="Prysm" active=true >}}
 
 ```bash
 microk8s helm3 uninstall eth2xk8s -nprysm
+microk8s kubectl delete namespace prysm
 ```
 
 {{< /toggle-panel >}}
@@ -1065,6 +1066,7 @@ microk8s helm3 uninstall eth2xk8s -nprysm
 
 ```bash
 microk8s helm3 uninstall eth2xk8s -nlighthouse
+microk8s kubectl delete namespace lighthouse
 ```
 
 {{< /toggle-panel >}}
@@ -1072,6 +1074,7 @@ microk8s helm3 uninstall eth2xk8s -nlighthouse
 
 ```bash
 microk8s helm3 uninstall eth2xk8s -nteku
+microk8s kubectl delete namespace teku
 ```
 
 {{< /toggle-panel >}}
@@ -1079,6 +1082,7 @@ microk8s helm3 uninstall eth2xk8s -nteku
 
 ```bash
 microk8s helm3 uninstall eth2xk8s -nnimbus
+microk8s kubectl delete namespace nimbus
 ```
 
 {{< /toggle-panel >}}
