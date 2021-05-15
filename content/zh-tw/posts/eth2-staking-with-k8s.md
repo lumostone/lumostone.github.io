@@ -1,13 +1,13 @@
 ---
-title: "當以太幣質押挖礦機遇見 Kubernetes－架設教學"
-date: 2021-05-07T23:53:09Z
-draft: true
+title: "Eth2xK8s: 當以太幣質押挖礦機遇見 Kubernetes－架設教學"
+date: 2021-05-15T13:24:09Z
+draft: false
 tags: ["以太坊", "kubernetes", "教學"]
 aliases:
     - /zh-tw/eth2-staking-with-k8s-prysm/
 ---
 
-> 2021/05/10: 在這篇教學裡，除了原本包含的 Prysm 以外，我們也加上了 Lighthouse, Teku 以及 Nimbus 的教學！
+> 2021/05/15: 更新 - 在原本包含的 Prysm 教學以外，我們也加上了 Lighthouse, Teku 以及 Nimbus 的教學！
 
 ## 為什麼使用 Kubernetes 作 staking？
 
@@ -41,7 +41,7 @@ aliases:
 
 這份教學包含以下內容：
 
-- 使用 MicroK8s 建立一個 Kubernetes 叢集。如果你有已建好的 Kubernetes 叢集，或想使用其他的 Kubernetes 發行版，可以在建好叢集後跳至「[安裝和設定NFS](#安裝和設定-nfs)」章節。如果你是使用雲端服務提供商所提供的 Kubernetes 托管服務（例如 AKS, EKS, GKE 等），你可以考慮直接使用雲端存儲服務（例如 Azure Disk, AWS S3 等）作為 beacon 與 validator 用戶端的持久性儲存系統，而非使用 NFS。我們未來會撰寫其他文章討論這個部分。
+- 使用 MicroK8s 建立一個 Kubernetes 叢集。如果你有已建好的 Kubernetes 叢集，或想使用其他的 Kubernetes 發行版，可以在建好叢集後跳至「[安裝和設定NFS](#安裝和設定-nfs)」章節。如果你是使用雲端服務提供商所提供的 Kubernetes 託管服務（例如 AKS, EKS, GKE 等），你可以考慮直接使用雲端存儲服務（例如 Azure Disk, AWS S3 等）作為 beacon 與 validator 用戶端的持久性儲存系統，而非使用 NFS。我們未來會撰寫其他文章討論這個部分。
 - 安裝和設定 NFS。
 - 準備用以安裝以太坊 2.0 用戶端的 Helm Chart。
 - 使用 Helm Chart 安裝以太坊 2.0 用戶端。
@@ -102,11 +102,6 @@ NFS：
 - 已在三台機器安裝 Ubuntu Server 20.04.2 LTS (x64) ，並已指派靜態 IP 位址。
 
 ## 設定步驟
-
-### 選擇以太坊 2.0 用戶端
-
-之後的教學內容會根據你選擇的以太坊 2.0 用戶端而有所變動，請在繼續往下閱讀前選擇一個用戶端：
-{{< content-toggle toggleTotal="4" toggle1="Prysm" toggle2="Lighthouse" toggle3="Teku" toggle4="Nimbus" active="toggle1" >}}
 
 ### 概要
 
@@ -189,6 +184,11 @@ sudo reboot
     ```bash
     chronyc tracking
     ```
+
+### 選擇以太坊 2.0 用戶端
+
+後面的教學內容會根據你選擇的以太坊 2.0 用戶端而有所變動，往下閱讀前請選擇一個用戶端：
+{{< content-toggle toggleTotal="4" toggle1="Prysm" toggle2="Lighthouse" toggle3="Teku" toggle4="Nimbus" active="toggle1" >}}
 
 ### 設定防火牆
 
@@ -1049,12 +1049,13 @@ microk8s kubectl top pod -l app=nimbus-1
 
 ### 解除安裝 Helm Chart
 
-如果想要停止執行以及移除以太坊 2.0 用戶端，可以執行以下指令來移除整個 Helm Chart：
+如果想要停止執行以及移除以太坊 2.0 用戶端，可以執行以下指令來移除整個 Helm Chart 及 namesapce：
 
 {{< toggle-panel name="Prysm" active=true >}}
 
 ```bash
 microk8s helm3 uninstall eth2xk8s -nprysm
+microk8s kubectl delete namespace prysm
 ```
 
 {{< /toggle-panel >}}
@@ -1062,6 +1063,7 @@ microk8s helm3 uninstall eth2xk8s -nprysm
 
 ```bash
 microk8s helm3 uninstall eth2xk8s -nlighthouse
+microk8s kubectl delete namespace lighthouse
 ```
 
 {{< /toggle-panel >}}
@@ -1069,6 +1071,7 @@ microk8s helm3 uninstall eth2xk8s -nlighthouse
 
 ```bash
 microk8s helm3 uninstall eth2xk8s -nteku
+microk8s kubectl delete namespace teku
 ```
 
 {{< /toggle-panel >}}
@@ -1076,6 +1079,7 @@ microk8s helm3 uninstall eth2xk8s -nteku
 
 ```bash
 microk8s helm3 uninstall eth2xk8s -nnimbus
+microk8s kubectl delete namespace nimbus
 ```
 
 {{< /toggle-panel >}}
