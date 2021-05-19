@@ -5,6 +5,7 @@ draft: false
 tags: ["ethereum", "kubernetes", "tutorial"]
 aliases: 
     - /en/eth2-staking-with-k8s-prysm/
+    - /en/posts/eth2-staking-with-k8s-prysm/
 ---
 
 > On May 15, 2021, this guide has been updated to include Lighthouse, Teku and Nimbus clients along with Prysm, the Ethereum 2.0 client we started with.
