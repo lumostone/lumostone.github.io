@@ -5,6 +5,7 @@ draft: false
 tags: ["以太坊", "kubernetes", "教學"]
 aliases:
     - /zh-tw/eth2-staking-with-k8s-prysm/
+    - /zh-tw/posts/eth2-staking-with-k8s-prysm/
 ---
 
 > 2021/05/15: 更新 - 在原本包含的 Prysm 教學以外，我們也加上了 Lighthouse, Teku 以及 Nimbus 的教學！
